@@ -1,0 +1,4 @@
+/home/dwyriel/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/223.7571.171/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/dwyriel/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/223.7571.171/bin/ninja/linux/ninja -G Ninja -S /home/dwyriel/Projects/JsonParser -B /home/dwyriel/Projects/JsonParser/cmake-build-debug
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/dwyriel/Projects/JsonParser/cmake-build-debug
