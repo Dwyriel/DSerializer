@@ -1,17 +1,17 @@
 cmake_minimum_required(VERSION 3.24)
-project(JsonParser)
-project(JsonParserTest)
+project(DSerializer)
+project(DSerializerTest)
 
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_library(JsonParser SHARED JsonParser.cpp)
+add_library(DSerializer SHARED DSerializer.cpp)
 
 add_library(DVariant SHARED libs/DVariant/DVariant.cpp)
 
-target_link_libraries(JsonParser DVariant)
+target_link_libraries(DSerializer DVariant)
 
-add_executable(JsonParserTest main.cpp)
+add_executable(DSerializerTest main.cpp)
 
-target_link_libraries(JsonParserTest JsonParser)
+target_link_libraries(DSerializerTest DSerializer)
