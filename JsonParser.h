@@ -1,47 +1,41 @@
 #ifndef JSONPARSER_JSONPARSER_H
 #define JSONPARSER_JSONPARSER_H
 
+#include <stdexcept>
 #include <map>
 #include <vector>
 #include <string>
-#include <variant>
+#include <utility>
+#include <libs/DVariant/DVariant.h>
 
-class JObject{
+class JObject {
     std::string objectName;
-    std::map<std::string, std::string> strings;
-    std::map<std::string, double> doubles;
-    std::map<std::string, long long> ints;
-    std::map<std::string, std::vector<std::string>> vectorStrings;
-    std::map<std::string, std::vector<double>> vectorDoubles;
-    std::map<std::string, std::vector<int>> vectorInts;
+    std::map<std::string, DVariant> items;
+    std::map<std::string, JObject> objects;
+    std::map<std::string, std::vector<DVariant>> vectorOfItems;
 
 public:
+    JObject() noexcept;
 
-    explicit JObject(std::string name);
+    explicit JObject(std::string name) noexcept;
 
-    void SetString(const std::string &name, const std::string &string);
+    void SetObjectName(std::string name) noexcept;
 
-    std::string GetString(const std::string &name);
+    const std::string &GetObjectName() noexcept;
 
-    void SetDouble(const std::string &name, const double &number);
+    void SetItem(const std::string &name, DVariant item) noexcept;
 
-    std::string GetDouble(const double &number);
+    DVariant &GetItem(const std::string &name) noexcept;
 
-    void SetInteger(const std::string &name, const long long &integer);
+    void SetObject(JObject object) noexcept;
 
-    std::string GetInteger(const std::string &name);
+    JObject &GetObject(const std::string &name) noexcept;
 
-    void SetVectorString(const std::string name, const std::vector<std::string> vectorString);
+    void SetVector(const std::string &name, std::vector<DVariant> vector) noexcept;
 
-    std::vector<std::string> GetVectorString(const std::string &name);
+    std::vector<DVariant> &GetVector(const std::string &name) noexcept;
 
-    void SetVectorDouble(const std::string name, const std::vector<double> vectorDouble);
-
-    std::vector<double> GetVectorDouble(const std::string &name);
-
-    void SetVectorInteger(const std::string name, const std::vector<long long> vectorInteger);
-
-    std::vector<long long> GetVectorInteger(const std::string &name);
+    DVariant &operator[](const std::string &name);
 };
 
 #endif //JSONPARSER_JSONPARSER_H
