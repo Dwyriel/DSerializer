@@ -1,4 +1,0 @@
-/home/dwyriel/Projects/JsonParser/cmake-build-debug/CMakeFiles/JsonParser.dir
-/home/dwyriel/Projects/JsonParser/cmake-build-debug/CMakeFiles/exec.dir
-/home/dwyriel/Projects/JsonParser/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/dwyriel/Projects/JsonParser/cmake-build-debug/CMakeFiles/rebuild_cache.dir
