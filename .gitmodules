@@ -1,0 +1,3 @@
+[submodule "libs/DVariant"]
+	path = libs/DVariant
+	url = https://github.com/Dwyriel/DVariant
