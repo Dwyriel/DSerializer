@@ -100,7 +100,12 @@ DObject &DDocument::Load() {
 }
 
 void DDocument::checkFile() {
-
+    if (_file.empty())
+        throw std::invalid_argument("No file passed");
+    if(!std::filesystem::exists(_file))
+        return;
+    if (std::filesystem::is_directory(_file))
+        throw std::invalid_argument("Passed file is a directory");
 }
 
 void DDocument::checkObject() {
