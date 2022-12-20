@@ -55,22 +55,24 @@ class DDocument {
 
     void checkObject();
 
+    void checkInnerObject(const DObject &dObject);
+
 public:
     DDocument() noexcept;
 
-    explicit DDocument(std::string file) noexcept;
+    explicit DDocument(std::filesystem::path file) noexcept;
 
     explicit DDocument(DObject dObject) noexcept;
 
-    explicit DDocument(std::string file, DObject dObject) noexcept;
+    explicit DDocument(std::filesystem::path file, DObject dObject) noexcept;
 
     void SetObject(DObject dObject) noexcept;
 
     DObject &GetObject() noexcept;
 
-    void SetFile(std::string file) noexcept;
+    void SetFile(std::filesystem::path file) noexcept;
 
-    const std::string &GetFile() noexcept;
+    const std::filesystem::path &GetFile() noexcept;
 
     bool Save();
 

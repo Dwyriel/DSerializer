@@ -78,11 +78,11 @@ DVariant &DObject::operator[](const std::string &name) {
 
 DDocument::DDocument() noexcept = default;
 
-DDocument::DDocument(std::string file) noexcept: _file(std::move(file)) {}
+DDocument::DDocument(std::filesystem::path file) noexcept: _file(std::move(file)) {}
 
 DDocument::DDocument(DObject dObject) noexcept: _mainObj(std::move(dObject)) {}
 
-DDocument::DDocument(std::string file, DObject dObject) noexcept: _file(std::move(file)), _mainObj(std::move(dObject)) {}
+DDocument::DDocument(std::filesystem::path file, DObject dObject) noexcept: _file(std::move(file)), _mainObj(std::move(dObject)) {}
 
 void DDocument::SetObject(DObject dObject) noexcept {
     _mainObj = std::move(dObject);
@@ -92,11 +92,11 @@ DObject &DDocument::GetObject() noexcept {
     return _mainObj;
 }
 
-void DDocument::SetFile(std::string file) noexcept {
+void DDocument::SetFile(std::filesystem::path file) noexcept {
     _file = std::move(file);
 }
 
-const std::string &DDocument::GetFile() noexcept {
+const std::filesystem::path &DDocument::GetFile() noexcept {
     return _file;
 }
 
@@ -114,13 +114,22 @@ DObject &DDocument::Load() {
 void DDocument::checkFile() {
     if (_file.empty())
         throw std::invalid_argument("No file passed");
-    if(!std::filesystem::exists(_file))
+    if (!std::filesystem::exists(_file))
         return;
     if (std::filesystem::is_directory(_file))
         throw std::invalid_argument("Passed file is a directory");
 }
 
 void DDocument::checkObject() {
-
+    checkInnerObject(_mainObj);
 }
 
+void DDocument::checkInnerObject(const DObject &dObject) {
+    if (_mainObj.GetObjectName().empty())
+        throw std::invalid_argument("DObject needs to have a name");
+    for (const auto &[stringKey, innerDObject]: dObject.objects)
+        checkInnerObject(innerDObject);
+    for (const auto &[stringKey, vectorOfDObjects]: dObject.vectorOfObjects)
+        for (const auto &innerDObject: vectorOfDObjects)
+            checkInnerObject(innerDObject);
+}
