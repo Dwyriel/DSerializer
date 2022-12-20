@@ -51,7 +51,9 @@ class DDocument {
 
     void checkFile();
 
-    void checkObject(const DObject &dObject);
+    void checkObject();
+
+    void checkInnerObject(const DObject &dObject);
 
 public:
     DDocument() noexcept;

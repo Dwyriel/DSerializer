@@ -107,7 +107,7 @@ const std::filesystem::path &DDocument::GetFile() const noexcept {
 
 bool DDocument::Save() {
     checkFile();
-    checkObject(_mainObj);
+    checkObject();
     std::ofstream outStream(_file, std::ios::trunc);
     outStream << CURLY_BRACE_START;
     //TODO stuff
@@ -129,12 +129,20 @@ void DDocument::checkFile() {
         throw std::invalid_argument("Passed file is a directory");
 }
 
-void DDocument::checkObject(const DObject& dObject) {
+void DDocument::checkObject() {
+    for (const auto &[stringKey, innerDObject]: _mainObj.objects)
+        checkInnerObject(innerDObject);
+    for (const auto &[stringKey, vectorOfDObjects]: _mainObj.vectorOfObjects)
+        for (const auto &innerDObject: vectorOfDObjects)
+            checkInnerObject(innerDObject);
+}
+
+void DDocument::checkInnerObject(const DObject &dObject) {
     if (dObject.GetObjectName().empty())
         throw std::invalid_argument("DObject needs to have a name");
     for (const auto &[stringKey, innerDObject]: dObject.objects)
-        checkObject(innerDObject);
+        checkInnerObject(innerDObject);
     for (const auto &[stringKey, vectorOfDObjects]: dObject.vectorOfObjects)
         for (const auto &innerDObject: vectorOfDObjects)
-            checkObject(innerDObject);
+            checkInnerObject(innerDObject);
 }

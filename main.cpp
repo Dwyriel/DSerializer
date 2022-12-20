@@ -2,11 +2,8 @@
 #include "DSerializer.h"
 
 int main() {
-
-    DDocument ddoc("/home/dwyriel/Projects/DSerializer/cmake-build-debug/dw.txt");
-    ddoc.Save();
-    return 0;
-    DObject obj{"First Obj"};
+    DDocument ddoc("dw.txt");
+    auto &obj = ddoc.GetObject();
     obj.SetItem("First Item", {"Hi"});
     obj["Sec"] = 25000;
     obj.GetItem("Third") = false;
@@ -26,8 +23,9 @@ int main() {
         obj2.SetItem("double", 29.234312);
         obj.SetObject(obj2);
     }
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 10; i++) {//THIS IS DUMB, TOO MANY ALLOCATIONS FOR NO REASON, I KNOW, IT'S JUST FOR TESTING
         std::vector<DObject> dObjvector{DObject("one"), DObject("two"), DObject("three")};
         obj.SetVector("Veccy" + std::to_string(i), dObjvector);
     }
+    ddoc.Save();
 }
