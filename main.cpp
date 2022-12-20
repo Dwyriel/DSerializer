@@ -2,6 +2,10 @@
 #include "DSerializer.h"
 
 int main() {
+
+    DDocument ddoc("/home/dwyriel/Projects/DSerializer/cmake-build-debug/dw.txt");
+    ddoc.Save();
+    return 0;
     DObject obj{"First Obj"};
     obj.SetItem("First Item", {"Hi"});
     obj["Sec"] = 25000;

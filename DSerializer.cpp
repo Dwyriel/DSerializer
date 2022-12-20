@@ -3,6 +3,8 @@
 #include <utility>
 #include <fstream>
 
+const auto CURLY_BRACE_START = '{', CURLY_BRACE_END = '}', QUOTATION_MARKS = '\"', COMMA = ',';
+
 //<!-- DObject --!>
 
 DObject::DObject() noexcept = default;
@@ -106,6 +108,10 @@ const std::filesystem::path &DDocument::GetFile() const noexcept {
 bool DDocument::Save() {
     checkFile();
     checkObject(_mainObj);
+    std::ofstream outStream(_file, std::ios::trunc);
+    outStream << CURLY_BRACE_START;
+    //TODO stuff
+    outStream << CURLY_BRACE_END;
     return true;
 }
 
