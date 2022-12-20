@@ -30,7 +30,7 @@ public:
 
     DVariant &GetItem(const std::string &name);
 
-    void SetObject(DObject object);
+    void SetObject(DObject dObject);
 
     DObject &GetObject(const std::string &name);
 

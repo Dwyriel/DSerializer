@@ -20,6 +20,8 @@ const std::string &DObject::GetObjectName() const noexcept {
 }
 
 void DObject::SetItem(const std::string &name, DVariant item) {
+    if(name.empty())
+        throw std::invalid_argument("Name can't be empty");
     if (names.find(name) != names.end())
         throw std::invalid_argument("Two entities can't have the same name: \"" + name + "\"");
     names.insert(std::pair<std::string, char>(name, 0));
@@ -33,11 +35,13 @@ DVariant &DObject::GetItem(const std::string &name) {
     return items[name];
 }
 
-void DObject::SetObject(DObject object) {
-    if (names.find(object.objectName) != names.end())
-        throw std::invalid_argument("Two entities can't have the same name: \"" + object.objectName + "\"");
-    names.insert(std::pair<std::string, char>(object.objectName, 0));
-    objects.insert(std::pair<std::string, DObject>(object.objectName, std::move(object)));
+void DObject::SetObject(DObject dObject) {
+    if(dObject.objectName.empty())
+        throw std::invalid_argument("Name can't be empty");
+    if (names.find(dObject.objectName) != names.end())
+        throw std::invalid_argument("Two entities can't have the same name: \"" + dObject.objectName + "\"");
+    names.insert(std::pair<std::string, char>(dObject.objectName, 0));
+    objects.insert(std::pair<std::string, DObject>(dObject.objectName, std::move(dObject)));
 }
 
 DObject &DObject::GetObject(const std::string &name) {
@@ -48,6 +52,8 @@ DObject &DObject::GetObject(const std::string &name) {
 }
 
 void DObject::SetVector(const std::string &name, std::vector<DVariant> vector) {
+    if(name.empty())
+        throw std::invalid_argument("Name can't be empty");
     if (names.find(name) != names.end())
         throw std::invalid_argument("Two entities can't have the same name: \"" + name + "\"");
     names.insert(std::pair<std::string, char>(name, 0));
@@ -55,6 +61,8 @@ void DObject::SetVector(const std::string &name, std::vector<DVariant> vector) {
 }
 
 void DObject::SetVector(const std::string &name, std::vector<DObject> vector) {
+    if(name.empty())
+        throw std::invalid_argument("Name can't be empty");
     if (names.find(name) != names.end())
         throw std::invalid_argument("Two entities can't have the same name: \"" + name + "\"");
     names.insert(std::pair<std::string, char>(name, 0));
