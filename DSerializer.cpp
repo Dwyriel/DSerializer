@@ -64,6 +64,46 @@ DVariant &DObject::operator[](const std::string &name) {
 
 //<!-- DDocument --!>
 
-DDocument::DDocument() {
+DDocument::DDocument() noexcept = default;
+
+DDocument::DDocument(std::string file) noexcept: _file(std::move(file)) {}
+
+DDocument::DDocument(DObject dObject) noexcept: _mainObj(std::move(dObject)) {}
+
+DDocument::DDocument(std::string file, DObject dObject) noexcept: _file(std::move(file)), _mainObj(std::move(dObject)) {}
+
+void DDocument::SetObject(DObject dObject) noexcept {
+    _mainObj = std::move(dObject);
+}
+
+DObject &DDocument::GetObject() noexcept {
+    return _mainObj;
+}
+
+void DDocument::SetFile(std::string file) noexcept {
+    _file = std::move(file);
+}
+
+const std::string &DDocument::GetFile() noexcept {
+    return _file;
+}
+
+bool DDocument::Save() {
+    checkFile();
+    checkObject();
+    return true;
+}
+
+DObject &DDocument::Load() {
+    checkFile();
+    return _mainObj;
+}
+
+void DDocument::checkFile() {
 
 }
+
+void DDocument::checkObject() {
+
+}
+

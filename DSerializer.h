@@ -1,9 +1,11 @@
 #ifndef JSONPARSER_JSONPARSER_H
 #define JSONPARSER_JSONPARSER_H
 
+#include <stdexcept>
 #include <map>
 #include <vector>
 #include <string>
+#include <filesystem>
 #include <utility>
 #include <libs/DVariant/DVariant.h>
 
@@ -44,16 +46,28 @@ public:
 
 class DDocument {
     DObject _mainObj;
-    std::string _file;
+    std::filesystem::path _file;
+
+    void checkFile();
+
+    void checkObject();
 
 public:
-    DDocument();
+    DDocument() noexcept;
 
-    explicit DDocument(std::string file);
+    explicit DDocument(std::string file) noexcept;
 
-    explicit DDocument(DObject jObject);
+    explicit DDocument(DObject dObject) noexcept;
 
-    explicit DDocument(std::string file, DObject jObject);
+    explicit DDocument(std::string file, DObject dObject) noexcept;
+
+    void SetObject(DObject dObject) noexcept;
+
+    DObject &GetObject() noexcept;
+
+    void SetFile(std::string file) noexcept;
+
+    const std::string &GetFile() noexcept;
 
     bool Save();
 
