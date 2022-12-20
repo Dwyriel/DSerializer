@@ -10,7 +10,10 @@
 #include <libs/DVariant/DVariant.h>
 
 class DObject {
+    friend class DDocument;
+
     std::string objectName;
+    std::map<std::string, char> names;
     std::map<std::string, DVariant> items;
     std::map<std::string, DObject> objects;
     std::map<std::string, std::vector<DVariant>> vectorOfItems;
@@ -25,21 +28,21 @@ public:
 
     const std::string &GetObjectName() noexcept;
 
-    void SetItem(const std::string &name, DVariant item) noexcept;
+    void SetItem(const std::string &name, DVariant item);
 
-    DVariant &GetItem(const std::string &name) noexcept;
+    DVariant &GetItem(const std::string &name);
 
-    void SetObject(DObject object) noexcept;
+    void SetObject(DObject object);
 
-    DObject &GetObject(const std::string &name) noexcept;
+    DObject &GetObject(const std::string &name);
 
-    void SetVector(const std::string &name, std::vector<DVariant> vector) noexcept;
+    void SetVector(const std::string &name, std::vector<DVariant> vector);
 
-    void SetVector(const std::string &name, std::vector<DObject> vector) noexcept;
+    void SetVector(const std::string &name, std::vector<DObject> vector);
 
-    std::vector<DVariant> &GetVectorOfItems(const std::string &name) noexcept;
+    std::vector<DVariant> &GetVectorOfItems(const std::string &name);
 
-    std::vector<DObject> &GetVectorOfObjects(const std::string &name) noexcept;
+    std::vector<DObject> &GetVectorOfObjects(const std::string &name);
 
     DVariant &operator[](const std::string &name);
 };

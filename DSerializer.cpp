@@ -14,44 +14,56 @@ const std::string &DObject::GetObjectName() noexcept {
     return objectName;
 }
 
-void DObject::SetItem(const std::string &name, DVariant item) noexcept {
+void DObject::SetItem(const std::string &name, DVariant item) {
+    if (names.find(name) != names.end())
+        throw std::invalid_argument("Two entities can't have the same name: \"" + name + "\"");
+    names.insert(std::pair<std::string, char>(name, 0));
     items[name] = std::move(item);
 }
 
-DVariant &DObject::GetItem(const std::string &name) noexcept {
+DVariant &DObject::GetItem(const std::string &name) {
     auto iterator = items.find(name);
     if (iterator == items.end())
         SetItem(name, std::move(DVariant()));
     return items[name];
 }
 
-void DObject::SetObject(DObject object) noexcept {
+void DObject::SetObject(DObject object) {
+    if (names.find(object.objectName) != names.end())
+        throw std::invalid_argument("Two entities can't have the same name: \"" + object.objectName + "\"");
+    names.insert(std::pair<std::string, char>(object.objectName, 0));
     objects.insert(std::pair<std::string, DObject>(object.objectName, std::move(object)));
 }
 
-DObject &DObject::GetObject(const std::string &name) noexcept {
+DObject &DObject::GetObject(const std::string &name) {
     auto iterator = objects.find(name);
     if (iterator == objects.end())
         SetObject(std::move(DObject(name)));
     return objects[name];
 }
 
-void DObject::SetVector(const std::string &name, std::vector<DVariant> vector) noexcept {
+void DObject::SetVector(const std::string &name, std::vector<DVariant> vector) {
+    if (names.find(name) != names.end())
+        throw std::invalid_argument("Two entities can't have the same name: \"" + name + "\"");
+    names.insert(std::pair<std::string, char>(name, 0));
     vectorOfItems[name] = std::move(vector);
 }
 
-void DObject::SetVector(const std::string &name, std::vector<DObject> vector) noexcept {
+void DObject::SetVector(const std::string &name, std::vector<DObject> vector) {
+    if (names.find(name) != names.end())
+        throw std::invalid_argument("Two entities can't have the same name: \"" + name + "\"");
+    names.insert(std::pair<std::string, char>(name, 0));
     vectorOfObjects[name] = std::move(vector);
 }
 
-std::vector<DVariant> &DObject::GetVectorOfItems(const std::string &name) noexcept {
+std::vector<DVariant> &DObject::GetVectorOfItems(const std::string &name) {
     auto iterator = vectorOfItems.find(name);
     if (iterator == vectorOfItems.end())
         SetVector(name, std::move(std::vector<DVariant>()));
     return vectorOfItems[name];
 }
 
-std::vector<DObject> &DObject::GetVectorOfObjects(const std::string &name) noexcept {
+std::vector<DObject> &DObject::GetVectorOfObjects(const std::string &name) {
     auto iterator = vectorOfObjects.find(name);
     if (iterator == vectorOfObjects.end())
         SetVector(name, std::move(std::vector<DObject>()));
