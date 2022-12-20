@@ -12,6 +12,7 @@ class DObject {
     std::map<std::string, DVariant> items;
     std::map<std::string, DObject> objects;
     std::map<std::string, std::vector<DVariant>> vectorOfItems;
+    std::map<std::string, std::vector<DObject>> vectorOfObjects;
 
 public:
     DObject() noexcept;
@@ -32,7 +33,11 @@ public:
 
     void SetVector(const std::string &name, std::vector<DVariant> vector) noexcept;
 
-    std::vector<DVariant> &GetVector(const std::string &name) noexcept;
+    void SetVector(const std::string &name, std::vector<DObject> vector) noexcept;
+
+    std::vector<DVariant> &GetVectorOfItems(const std::string &name) noexcept;
+
+    std::vector<DObject> &GetVectorOfObjects(const std::string &name) noexcept;
 
     DVariant &operator[](const std::string &name);
 };

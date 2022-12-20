@@ -40,11 +40,22 @@ void DObject::SetVector(const std::string &name, std::vector<DVariant> vector) n
     vectorOfItems[name] = std::move(vector);
 }
 
-std::vector<DVariant> &DObject::GetVector(const std::string &name) noexcept {
+void DObject::SetVector(const std::string &name, std::vector<DObject> vector) noexcept {
+    vectorOfObjects[name] = std::move(vector);
+}
+
+std::vector<DVariant> &DObject::GetVectorOfItems(const std::string &name) noexcept {
     auto iterator = vectorOfItems.find(name);
     if (iterator == vectorOfItems.end())
         SetVector(name, std::move(std::vector<DVariant>()));
     return vectorOfItems[name];
+}
+
+std::vector<DObject> &DObject::GetVectorOfObjects(const std::string &name) noexcept {
+    auto iterator = vectorOfObjects.find(name);
+    if (iterator == vectorOfObjects.end())
+        SetVector(name, std::move(std::vector<DObject>()));
+    return vectorOfObjects[name];
 }
 
 DVariant &DObject::operator[](const std::string &name) {
