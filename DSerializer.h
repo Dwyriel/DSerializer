@@ -17,12 +17,14 @@ class DObject {
     std::map<std::string, std::vector<DVariant>> vectorOfItems;
     std::map<std::string, std::vector<DObject>> vectorOfObjects;
 
+    void checkName(const std::string &name);
+
 public:
     DObject() noexcept;
 
     explicit DObject(std::string name) noexcept;
 
-    void SetObjectName(std::string name) noexcept;
+    void SetObjectName(std::string name);
 
     [[nodiscard]] const std::string &GetObjectName() const noexcept;
 

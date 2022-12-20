@@ -27,5 +27,11 @@ int main() {
         std::vector<DObject> dObjvector{DObject("one"), DObject("two"), DObject("three")};
         obj.SetVector("Veccy" + std::to_string(i), dObjvector);
     }
+    obj.GetVectorOfObjects("Veccy4").at(1).SetItem("Number of the Beast",666);
+    for (int i = 0; i < 5; i++) {
+        std::vector<DVariant> dVarVector{76, {"one"}, 2, false, 25, .9997, {"Haru"}};
+        obj.SetVector("Vec" + std::to_string(i), dVarVector);
+    }
+    obj.GetVectorOfItems("Vec2").emplace_back(333);
     ddoc.Save();
 }

@@ -3,15 +3,18 @@
 #include <utility>
 #include <fstream>
 
-const auto CURLY_BRACE_START = '{', CURLY_BRACE_END = '}', QUOTATION_MARKS = '\"', COMMA = ',';
-
+const char CURLY_BRACE_START = '{', CURLY_BRACE_END = '}', QUOTATION_MARKS = '\"', COMMA = ',', NEW_LINE = '\n', TAB = '\t', SPACE = ' ';
 //<!-- DObject --!>
 
 DObject::DObject() noexcept = default;
 
 DObject::DObject(std::string name) noexcept: objectName(std::move(name)) {}
 
-void DObject::SetObjectName(std::string name) noexcept {
+void DObject::SetObjectName(std::string name) {
+    if (name.empty())
+        throw std::invalid_argument("Name can't be empty");
+    if (name.find(SPACE) != std::string::npos || name.find(TAB) != std::string::npos || name.find(NEW_LINE) != std::string::npos)
+        throw std::invalid_argument("Name contains invalid character (Space, new line or tab)");
     objectName = std::move(name);
 }
 
@@ -20,10 +23,7 @@ const std::string &DObject::GetObjectName() const noexcept {
 }
 
 void DObject::SetItem(const std::string &name, DVariant item) {
-    if(name.empty())
-        throw std::invalid_argument("Name can't be empty");
-    if (names.find(name) != names.end())
-        throw std::invalid_argument("Two entities can't have the same name: \"" + name + "\"");
+    checkName(name);
     names.insert(std::pair<std::string, char>(name, 0));
     items[name] = std::move(item);
 }
@@ -36,10 +36,7 @@ DVariant &DObject::GetItem(const std::string &name) {
 }
 
 void DObject::SetObject(DObject dObject) {
-    if(dObject.objectName.empty())
-        throw std::invalid_argument("Name can't be empty");
-    if (names.find(dObject.objectName) != names.end())
-        throw std::invalid_argument("Two entities can't have the same name: \"" + dObject.objectName + "\"");
+    checkName(dObject.objectName);
     names.insert(std::pair<std::string, char>(dObject.objectName, 0));
     objects.insert(std::pair<std::string, DObject>(dObject.objectName, std::move(dObject)));
 }
@@ -52,19 +49,13 @@ DObject &DObject::GetObject(const std::string &name) {
 }
 
 void DObject::SetVector(const std::string &name, std::vector<DVariant> vector) {
-    if(name.empty())
-        throw std::invalid_argument("Name can't be empty");
-    if (names.find(name) != names.end())
-        throw std::invalid_argument("Two entities can't have the same name: \"" + name + "\"");
+    checkName(name);
     names.insert(std::pair<std::string, char>(name, 0));
     vectorOfItems[name] = std::move(vector);
 }
 
 void DObject::SetVector(const std::string &name, std::vector<DObject> vector) {
-    if(name.empty())
-        throw std::invalid_argument("Name can't be empty");
-    if (names.find(name) != names.end())
-        throw std::invalid_argument("Two entities can't have the same name: \"" + name + "\"");
+    checkName(name);
     names.insert(std::pair<std::string, char>(name, 0));
     vectorOfObjects[name] = std::move(vector);
 }
@@ -85,6 +76,15 @@ std::vector<DObject> &DObject::GetVectorOfObjects(const std::string &name) {
 
 DVariant &DObject::operator[](const std::string &name) {
     return GetItem(name);
+}
+
+void DObject::checkName(const std::string &name) {
+    if (name.empty())
+        throw std::invalid_argument("Name can't be empty");
+    if (name.find(SPACE) != std::string::npos || name.find(TAB) != std::string::npos || name.find(NEW_LINE) != std::string::npos)
+        throw std::invalid_argument("Name contains invalid character (Space, new line or tab)");
+    if (names.find(name) != names.end())
+        throw std::invalid_argument("Two entities can't have the same name: \"" + name + "\"");
 }
 
 //<!-- DDocument --!>
