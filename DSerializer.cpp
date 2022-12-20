@@ -1,4 +1,7 @@
 #include "DSerializer.h"
+#include <stdexcept>
+#include <utility>
+#include <fstream>
 
 //<!-- DObject --!>
 
