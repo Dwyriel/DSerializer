@@ -13,7 +13,7 @@ void DObject::SetObjectName(std::string name) noexcept {
     objectName = std::move(name);
 }
 
-const std::string &DObject::GetObjectName() noexcept {
+const std::string &DObject::GetObjectName() const noexcept {
     return objectName;
 }
 
@@ -99,13 +99,13 @@ void DDocument::SetFile(std::filesystem::path file) noexcept {
     _file = std::move(file);
 }
 
-const std::filesystem::path &DDocument::GetFile() noexcept {
+const std::filesystem::path &DDocument::GetFile() const noexcept {
     return _file;
 }
 
 bool DDocument::Save() {
     checkFile();
-    checkObject();
+    checkObject(_mainObj);
     return true;
 }
 
@@ -123,16 +123,12 @@ void DDocument::checkFile() {
         throw std::invalid_argument("Passed file is a directory");
 }
 
-void DDocument::checkObject() {
-    checkInnerObject(_mainObj);
-}
-
-void DDocument::checkInnerObject(const DObject &dObject) {
-    if (_mainObj.GetObjectName().empty())
+void DDocument::checkObject(const DObject& dObject) {
+    if (dObject.GetObjectName().empty())
         throw std::invalid_argument("DObject needs to have a name");
     for (const auto &[stringKey, innerDObject]: dObject.objects)
-        checkInnerObject(innerDObject);
+        checkObject(innerDObject);
     for (const auto &[stringKey, vectorOfDObjects]: dObject.vectorOfObjects)
         for (const auto &innerDObject: vectorOfDObjects)
-            checkInnerObject(innerDObject);
+            checkObject(innerDObject);
 }

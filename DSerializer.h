@@ -24,7 +24,7 @@ public:
 
     void SetObjectName(std::string name) noexcept;
 
-    const std::string &GetObjectName() noexcept;
+    [[nodiscard]] const std::string &GetObjectName() const noexcept;
 
     void SetItem(const std::string &name, DVariant item);
 
@@ -51,9 +51,7 @@ class DDocument {
 
     void checkFile();
 
-    void checkObject();
-
-    void checkInnerObject(const DObject &dObject);
+    void checkObject(const DObject &dObject);
 
 public:
     DDocument() noexcept;
@@ -70,7 +68,7 @@ public:
 
     void SetFile(std::filesystem::path file) noexcept;
 
-    const std::filesystem::path &GetFile() noexcept;
+    [[nodiscard]] const std::filesystem::path &GetFile() const noexcept;
 
     bool Save();
 
