@@ -2,7 +2,7 @@
 #include "DSerializer.h"
 
 int main() {
-    DSerializer::DDocument ddoc("dw.txt");
+    DSerializer::DDocument ddoc("test.json");
     auto &obj = ddoc.GetObject();
     obj.SetItem("First_Item", "Hi");
     obj["Sec"] = 25000;
@@ -23,15 +23,36 @@ int main() {
         obj2.SetItem("double", 29.234312);
         obj.SetObject(obj2);
     }
-    for (int i = 0; i < 10; i++) {//THIS IS DUMB, TOO MANY ALLOCATIONS FOR NO REASON, I KNOW, IT'S JUST FOR TESTING
-        DSerializer::DObjVector dObjvector{DSerializer::DObject("one"), DSerializer::DObject("two"), DSerializer::DObject("three")};
-        obj.SetVector("Veccy" + std::to_string(i), dObjvector);
+    {
+        DSerializer::DObject obj2("Second_Object");
+        obj2.SetItem("string", "hi");
+        obj2.SetItem("bool", true);
+        obj2.SetItem("double", 29.234312);
+        obj.SetObject(obj2);
     }
-    obj.GetVectorOfObjects("Veccy4").at(1).SetItem("Number_of_the_Beast", 666);
+    {
+        DSerializer::DObject obj2("Cool_Object");
+        obj2.SetItem("boolean", true);
+        obj2.SetItem("bool", true);
+        obj2.SetItem("integer", false);
+        obj.SetObject(obj2);
+    }
     for (int i = 0; i < 5; i++) {
         std::vector<DVariant> dVarVector{76, "one", 2, false, 25, .9997, "Haru"};
-        obj.SetVector("Vec" + std::to_string(i), dVarVector);
+        obj.SetVector("ArrayItems" + std::to_string(i), dVarVector);
     }
     obj.GetVectorOfItems("Vec2").emplace_back(333);
+    obj.GetVectorOfObjects("Veccy4").emplace_back("Itenus");
+    obj.GetVectorOfObjects("Veccy4").at(0).SetItem("Number_of_the_Beast", 666);
+    obj.GetVectorOfObjects("Veccy4").at(0).SetObject(DSerializer::DObject("Objectus"));
+    obj.GetVectorOfObjects("Veccy4").at(0).GetObject("Objectus").SetItem("Doublely_So", 2);
+    obj.GetVectorOfObjects("Veccy4").at(0).GetObject("Objectus").GetObject("Objectify").SetItem("Str", "I like cute things :)");
+    for (int i = 0; i < 10; i++) {//THIS IS DUMB, TOO MANY ALLOCATIONS FOR NO REASON, I KNOW, IT'S JUST FOR TESTING
+        DSerializer::DObjVector dObjvector{DSerializer::DObject(), DSerializer::DObject(), DSerializer::DObject()};
+        dObjvector.at(0).SetItem("One_Item", 1);
+        dObjvector.at(1).SetItem("To_Rule", 2);
+        dObjvector.at(2).SetItem("Them_All", 3);
+        obj.SetVector("ArrayObjs" + std::to_string(i), dObjvector);
+    }
     ddoc.Save();
 }

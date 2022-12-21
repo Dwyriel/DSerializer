@@ -3,7 +3,8 @@
 #include <utility>
 #include <fstream>
 
-const char CURLY_BRACE_START = '{', CURLY_BRACE_END = '}', QUOTATION_MARKS = '\"', COMMA = ',', NEW_LINE = '\n', TAB = '\t', SPACE = ' ';
+const char CURLY_BRACKET_START = '{', CURLY_BRACKET_END = '}', SQUARE_BRACKET_START = '[', SQUARE_BRACKET_END = ']', QUOTATION_MARKS = '\"', COLON = ':', SEMICOLON = ';', EQUAL = '=', COMMA = ',', NEW_LINE = '\n', TAB = '\t', SPACE = ' ';
+
 //<!-- DObject --!>
 
 DSerializer::DObject::DObject() noexcept = default;
@@ -89,9 +90,9 @@ void DSerializer::DObject::checkName(const std::string &name) {
 
 //<!-- DDocument --!>
 
-DSerializer::DDocument::DDocument() noexcept = default;
+DSerializer::DDocument::DDocument() noexcept: _mainObj("rootObj") {};
 
-DSerializer::DDocument::DDocument(std::filesystem::path file) noexcept: _file(std::move(file)) {}
+DSerializer::DDocument::DDocument(std::filesystem::path file) noexcept: _file(std::move(file)), _mainObj("rootObj") {}
 
 DSerializer::DDocument::DDocument(DObject dObject) noexcept: _mainObj(std::move(dObject)) {}
 
@@ -115,11 +116,11 @@ const std::filesystem::path &DSerializer::DDocument::GetFile() const noexcept {
 
 bool DSerializer::DDocument::Save() {
     checkFile();
-    checkObject();
+    checkObject(_mainObj);
     std::ofstream outStream(_file, std::ios::trunc);
-    outStream << CURLY_BRACE_START;
-    //TODO stuff
-    outStream << CURLY_BRACE_END;
+    outStream << CURLY_BRACKET_START;
+    serializeObject(outStream, _mainObj);
+    outStream << CURLY_BRACKET_END;
     return true;
 }
 
@@ -137,20 +138,86 @@ void DSerializer::DDocument::checkFile() {
         throw std::invalid_argument("Passed file is a directory");
 }
 
-void DSerializer::DDocument::checkObject() {
-    for (const auto &[stringKey, innerDObject]: _mainObj.objects)
-        checkInnerObject(innerDObject);
-    for (const auto &[stringKey, vectorOfDObjects]: _mainObj.vectorOfObjects)
-        for (const auto &innerDObject: vectorOfDObjects)
-            checkInnerObject(innerDObject);
-}
-
-void DSerializer::DDocument::checkInnerObject(const DObject &dObject) {
-    if (dObject.GetObjectName().empty())
-        throw std::invalid_argument("DObject needs to have a name");
+void DSerializer::DDocument::checkObject(const DObject &dObject) {
     for (const auto &[stringKey, innerDObject]: dObject.objects)
-        checkInnerObject(innerDObject);
+        checkObject(innerDObject);
     for (const auto &[stringKey, vectorOfDObjects]: dObject.vectorOfObjects)
         for (const auto &innerDObject: vectorOfDObjects)
-            checkInnerObject(innerDObject);
+            checkObject(innerDObject);
+}
+
+void DSerializer::DDocument::serializeItems(std::ofstream &stream, DObject& dObject) {
+    for (auto it = dObject.items.begin(); it != dObject.items.end();) {
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << QUOTATION_MARKS << it->second.GetString() << QUOTATION_MARKS;
+        if (++it != dObject.items.end() || !dObject.objects.empty() || !dObject.vectorOfItems.empty() || !dObject.vectorOfObjects.empty())
+            stream << COMMA;
+    }
+}
+
+void DSerializer::DDocument::serializeObject(std::ofstream &stream, DSerializer::DObject &dObject) {
+    if (dObject.GetObjectName().empty())
+        throw std::invalid_argument("DObject needs to have a name");
+    stream << QUOTATION_MARKS << dObject.objectName << QUOTATION_MARKS << COLON << CURLY_BRACKET_START;
+    serializeItems(stream, dObject);
+    for (auto it = dObject.objects.begin(); it != dObject.objects.end();) {
+        serializeObject(stream, it->second);
+        if (++it != dObject.objects.end() || !dObject.vectorOfItems.empty() || !dObject.vectorOfObjects.empty())
+            stream << COMMA;
+    }
+    for (auto it = dObject.vectorOfItems.begin(); it != dObject.vectorOfItems.end();) {
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START;
+        serializeVector(stream, it->second);
+        stream << SQUARE_BRACKET_END;
+        if (++it != dObject.vectorOfItems.end() || !dObject.vectorOfObjects.empty())
+            stream << COMMA;
+    }
+    for (auto it = dObject.vectorOfObjects.begin(); it != dObject.vectorOfObjects.end();) {
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START;
+        serializeVector(stream, it->second);
+        stream << SQUARE_BRACKET_END;
+        if (++it != dObject.vectorOfObjects.end())
+            stream << COMMA;
+    }
+    stream << CURLY_BRACKET_END;
+}
+
+void DSerializer::DDocument::serializeObjectOfVector(std::ofstream &stream, DSerializer::DObject dObject) {
+    stream << CURLY_BRACKET_START;
+    serializeItems(stream, dObject);
+    for (auto it = dObject.objects.begin(); it != dObject.objects.end();) {
+        serializeObject(stream, it->second);
+        if (++it != dObject.objects.end() || !dObject.vectorOfItems.empty() || !dObject.vectorOfObjects.empty())
+            stream << COMMA;
+    }
+    for (auto it = dObject.vectorOfItems.begin(); it != dObject.vectorOfItems.end();) {
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START;
+        serializeVector(stream, it->second);
+        stream << SQUARE_BRACKET_END;
+        if (++it != dObject.vectorOfItems.end() || !dObject.vectorOfObjects.empty())
+            stream << COMMA;
+    }
+    for (auto it = dObject.vectorOfObjects.begin(); it != dObject.vectorOfObjects.end();) {
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START;
+        serializeVector(stream, it->second);
+        stream << SQUARE_BRACKET_END;
+        if (++it != dObject.vectorOfObjects.end()) continue;
+        stream << COMMA;
+    }
+    stream << CURLY_BRACKET_END;
+}
+
+void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer::DVarVector &vector) {
+    for(auto it = vector.begin(); it != vector.end();){
+        stream << QUOTATION_MARKS << it->GetString() << QUOTATION_MARKS;
+        if(++it != vector.end())
+            stream << COMMA;
+    }
+}
+
+void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer::DObjVector &vector) {
+    for(auto it = vector.begin(); it != vector.end();){
+        serializeObjectOfVector(stream, *it);
+        if(++it != vector.end())
+            stream << COMMA;
+    }
 }

@@ -47,15 +47,27 @@ namespace DSerializer {
         DVariant &operator[](const std::string &name);
     };
 
+    using DObjVector = std::vector<DObject>;
+
+    using DVarVector = std::vector<DVariant>;
+
     class DDocument {
         DObject _mainObj;
         std::filesystem::path _file;
 
         void checkFile();
 
-        void checkObject();
+        void checkObject(const DObject &dObject);
 
-        void checkInnerObject(const DObject &dObject);
+        void serializeItems(std::ofstream &stream, DObject &dObject);
+
+        void serializeObject(std::ofstream &stream, DObject &dObject);
+
+        void serializeObjectOfVector(std::ofstream &stream, DObject dObject);
+
+        void serializeVector(std::ofstream &stream, DVarVector &vector);
+
+        void serializeVector(std::ofstream &stream, DObjVector &vector);
 
     public:
         DDocument() noexcept;
@@ -78,10 +90,6 @@ namespace DSerializer {
 
         DObject &Load();
     };
-
-    using DObjVector = std::vector<DObject>;
-
-    using DVarVector = std::vector<DVariant>;
 }
 
 #endif //JSONPARSER_JSONPARSER_H
