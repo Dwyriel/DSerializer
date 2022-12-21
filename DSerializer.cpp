@@ -148,7 +148,21 @@ void DSerializer::DDocument::checkObject(const DObject &dObject) {
 
 void DSerializer::DDocument::serializeItems(std::ofstream &stream, DObject& dObject) {
     for (auto it = dObject.items.begin(); it != dObject.items.end();) {
-        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << QUOTATION_MARKS << it->second.GetString() << QUOTATION_MARKS;
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON;
+        switch(it->second.GetType()){
+            case DVariant::Type::String:
+                stream << QUOTATION_MARKS << it->second.AsString() << QUOTATION_MARKS;
+                break;
+            case DVariant::Type::Boolean:
+                stream << (it->second.AsBool() ? "true" : "false");
+                break;
+            case DVariant::Type::Integer:
+                stream << it->second.AsInteger();
+                break;
+            case DVariant::Type::Double:
+                stream << it->second.AsDouble();
+                break;
+        }
         if (++it != dObject.items.end() || !dObject.objects.empty() || !dObject.vectorOfItems.empty() || !dObject.vectorOfObjects.empty())
             stream << COMMA;
     }
@@ -208,7 +222,20 @@ void DSerializer::DDocument::serializeObjectOfVector(std::ofstream &stream, DSer
 
 void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer::DVarVector &vector) {
     for(auto it = vector.begin(); it != vector.end();){
-        stream << QUOTATION_MARKS << it->GetString() << QUOTATION_MARKS;
+        switch(it->GetType()){
+            case DVariant::Type::String:
+                stream << QUOTATION_MARKS << it->AsString() << QUOTATION_MARKS;
+                break;
+            case DVariant::Type::Boolean:
+                stream << (it->AsBool() ? "true" : "false");
+                break;
+            case DVariant::Type::Integer:
+                stream << it->AsInteger();
+                break;
+            case DVariant::Type::Double:
+                stream << it->AsDouble();
+                break;
+        }
         if(++it != vector.end())
             stream << COMMA;
     }
