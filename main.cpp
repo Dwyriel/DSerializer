@@ -2,9 +2,9 @@
 #include "DSerializer.h"
 
 int main() {
-    DDocument ddoc("dw.txt");
+    DSerializer::DDocument ddoc("dw.txt");
     auto &obj = ddoc.GetObject();
-    obj.SetItem("First Item", {"Hi"});
+    obj.SetItem("First Item", "Hi");
     obj["Sec"] = 25000;
     obj.GetItem("Third") = false;
     obj.GetItem("Forth") = (double) 52558541858823;
@@ -17,19 +17,19 @@ int main() {
     obj.SetItem("Third Item", 36.6);
     obj.SetItem("Fourth Item", false);
     {
-        DObject obj2("First Object");
-        obj2.SetItem("string", {"hi"});
+        DSerializer::DObject obj2("First Object");
+        obj2.SetItem("string", "hi");
         obj2.SetItem("bool", true);
         obj2.SetItem("double", 29.234312);
         obj.SetObject(obj2);
     }
     for (int i = 0; i < 10; i++) {//THIS IS DUMB, TOO MANY ALLOCATIONS FOR NO REASON, I KNOW, IT'S JUST FOR TESTING
-        std::vector<DObject> dObjvector{DObject("one"), DObject("two"), DObject("three")};
+        DSerializer::DObjVector dObjvector{DSerializer::DObject("one"), DSerializer::DObject("two"), DSerializer::DObject("three")};
         obj.SetVector("Veccy" + std::to_string(i), dObjvector);
     }
-    obj.GetVectorOfObjects("Veccy4").at(1).SetItem("Number of the Beast",666);
+    obj.GetVectorOfObjects("Veccy4").at(1).SetItem("Number of the Beast", 666);
     for (int i = 0; i < 5; i++) {
-        std::vector<DVariant> dVarVector{76, {"one"}, 2, false, 25, .9997, {"Haru"}};
+        std::vector<DVariant> dVarVector{76, "one", 2, false, 25, .9997, "Haru"};
         obj.SetVector("Vec" + std::to_string(i), dVarVector);
     }
     obj.GetVectorOfItems("Vec2").emplace_back(333);
