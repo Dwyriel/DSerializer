@@ -263,7 +263,7 @@ void DSerializer::DDocument::putFileContentsIntoString(std::string &string) {
     std::ifstream inputStream(_file);
     if (!inputStream.is_open())
         throw std::runtime_error("Couldn't open file: " + _file.string());
-    string.reserve(fileSize);
+    string.reserve(fileSize + 1);
     while (!inputStream.eof())
         string += (char) inputStream.get();
 }
@@ -272,6 +272,7 @@ void DSerializer::DDocument::removeSpacesAndNewLines(std::string &string) {
     removeNewLines(string);
     removeTabs(string);
     removeSpaces(string);
+    string.shrink_to_fit();
 }
 
 void DSerializer::DDocument::removeNewLines(std::string &string) {
