@@ -90,9 +90,9 @@ void DSerializer::DObject::checkName(const std::string &name) {
 
 //<!-- DDocument --!>
 
-DSerializer::DDocument::DDocument() noexcept: _mainObj("rootObj") {};
+DSerializer::DDocument::DDocument() noexcept = default;
 
-DSerializer::DDocument::DDocument(std::filesystem::path file) noexcept: _file(std::move(file)), _mainObj("rootObj") {}
+DSerializer::DDocument::DDocument(std::filesystem::path file) noexcept: _file(std::move(file)) {}
 
 DSerializer::DDocument::DDocument(DObject dObject) noexcept: _mainObj(std::move(dObject)) {}
 
@@ -114,12 +114,13 @@ const std::filesystem::path &DSerializer::DDocument::GetFile() const noexcept {
     return _file;
 }
 
-bool DSerializer::DDocument::Save() {
+void DSerializer::DDocument::Save() {
     checkFile();
     checkObject(_mainObj);
-    std::ofstream outStream(_file, std::ios::trunc);
-    serializeObjectWithoutName(outStream, _mainObj, 0);
-    return true;
+    std::ofstream outputStream(_file, std::ios::trunc);
+    if(!outputStream.is_open())
+        throw std::runtime_error("Couldn't open file: "  + _file.string());
+    serializeObjectWithoutName(outputStream, _mainObj, 0);
 }
 
 DSerializer::DObject &DSerializer::DDocument::Load() {

@@ -90,7 +90,7 @@ namespace DSerializer {
 
         [[nodiscard]] const std::filesystem::path &GetFile() const noexcept;
 
-        bool Save();
+        void Save();
 
         DObject &Load();
     };
