@@ -298,16 +298,16 @@ void DSerializer::DDocument::removeNewLinesTabsAndSpaces(std::string &string) {
     string.shrink_to_fit();
 }
 
-void DSerializer::DDocument::readEntityName(std::string &string, std::string &outputName, size_t &currIndex) {
-    throwParseErrorIf(string.find('"', currIndex + 1) == std::string::npos);
+void DSerializer::DDocument::readEntireString(std::string &string, std::string &outputString, size_t &index) {
+    throwParseErrorIf(string.find('"', index + 1) == std::string::npos);
     char currChar = 0, prevChar;
     while (true) {
         prevChar = currChar;
-        currChar = string[++currIndex];
+        currChar = string[++index];
         throwParseErrorIf(currChar == EOF);
         if (currChar == QUOTATION_MARKS && prevChar != INVERSE_SLASH)
             break;
-        outputName += string[currIndex];
+        outputString += string[index];
     }
 }
 

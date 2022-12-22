@@ -89,10 +89,10 @@ namespace DSerializer {
 
         /**
          * @param string the string containing the name
-         * @param outputName the string that will receive the name
-         * @param currIndex The index of the first quotation mark(")
+         * @param outputString the string that will receive the name
+         * @param index The index of the first quotation mark(")
          */
-        void readEntityName(std::string &string, std::string &outputName, size_t &currIndex);
+        void readEntireString(std::string &string, std::string &outputString, size_t &index);
 
         TypeOfEntity checkTypeOfEntity(char character);
 
