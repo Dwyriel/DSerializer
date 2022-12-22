@@ -119,7 +119,7 @@ bool DSerializer::DDocument::Save() {
     checkObject(_mainObj);
     std::ofstream outStream(_file, std::ios::trunc);
     outStream << CURLY_BRACKET_START << NEW_LINE;
-    serializeObject(outStream, _mainObj);
+    serializeObject(outStream, _mainObj, 1);
     outStream << NEW_LINE << CURLY_BRACKET_END;
     return true;
 }
@@ -146,10 +146,16 @@ void DSerializer::DDocument::checkObject(const DObject &dObject) {
             checkObject(innerDObject);
 }
 
-void DSerializer::DDocument::serializeItems(std::ofstream &stream, DObject& dObject) {
+void DSerializer::DDocument::addTabs(std::ofstream &stream, int tabNumber) {
+    for (int i = 0; i < tabNumber; i++)
+        stream << TAB;
+}
+
+void DSerializer::DDocument::serializeItems(std::ofstream &stream, DObject &dObject, int tabNumber) {
     for (auto it = dObject.items.begin(); it != dObject.items.end();) {
-        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON;
-        switch(it->second.GetType()){
+        addTabs(stream, tabNumber);
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SPACE;
+        switch (it->second.GetType()) {
             case DVariant::Type::String:
                 stream << QUOTATION_MARKS << it->second.AsString() << QUOTATION_MARKS;
                 break;
@@ -168,61 +174,80 @@ void DSerializer::DDocument::serializeItems(std::ofstream &stream, DObject& dObj
     }
 }
 
-void DSerializer::DDocument::serializeObject(std::ofstream &stream, DSerializer::DObject &dObject) {
+void DSerializer::DDocument::serializeObject(std::ofstream &stream, DSerializer::DObject &dObject, int tabNumber) {
     if (dObject.GetObjectName().empty())
         throw std::invalid_argument("DObject needs to have a name");
-    stream << QUOTATION_MARKS << dObject.objectName << QUOTATION_MARKS << COLON << CURLY_BRACKET_START << NEW_LINE;
-    serializeItems(stream, dObject);
+    addTabs(stream, tabNumber);
+    stream << QUOTATION_MARKS << dObject.objectName << QUOTATION_MARKS << COLON << SPACE << CURLY_BRACKET_START << NEW_LINE;
+    serializeItems(stream, dObject, tabNumber + 1);
     for (auto it = dObject.objects.begin(); it != dObject.objects.end();) {
-        serializeObject(stream, it->second);
+        serializeObject(stream, it->second, tabNumber + 1);
         if (++it != dObject.objects.end() || !dObject.vectorOfItems.empty() || !dObject.vectorOfObjects.empty())
             stream << COMMA << NEW_LINE;
     }
     for (auto it = dObject.vectorOfItems.begin(); it != dObject.vectorOfItems.end();) {
-        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START << NEW_LINE;
-        serializeVector(stream, it->second);
-        stream << NEW_LINE << SQUARE_BRACKET_END;
+        addTabs(stream, tabNumber + 1);
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SPACE << SQUARE_BRACKET_START << NEW_LINE;
+        serializeVector(stream, it->second, tabNumber + 2);
+        stream << NEW_LINE;
+        addTabs(stream, tabNumber + 1);
+        stream << SQUARE_BRACKET_END;
         if (++it != dObject.vectorOfItems.end() || !dObject.vectorOfObjects.empty())
             stream << COMMA << NEW_LINE;
     }
     for (auto it = dObject.vectorOfObjects.begin(); it != dObject.vectorOfObjects.end();) {
-        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START << NEW_LINE;
-        serializeVector(stream, it->second);
-        stream << NEW_LINE << SQUARE_BRACKET_END;
+        addTabs(stream, tabNumber + 1);
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SPACE << SQUARE_BRACKET_START << NEW_LINE;
+        serializeVector(stream, it->second, tabNumber + 2);
+        stream << NEW_LINE;
+        addTabs(stream, tabNumber + 1);
+        stream << SQUARE_BRACKET_END;
         if (++it != dObject.vectorOfObjects.end())
             stream << COMMA << NEW_LINE;
     }
-    stream << NEW_LINE << CURLY_BRACKET_END;
+    stream << NEW_LINE;
+    addTabs(stream, tabNumber);
+    stream << CURLY_BRACKET_END;
 }
 
-void DSerializer::DDocument::serializeObjectOfVector(std::ofstream &stream, DSerializer::DObject dObject) {
+void DSerializer::DDocument::serializeObjectOfVector(std::ofstream &stream, DSerializer::DObject dObject, int tabNumber) {
+    addTabs(stream, tabNumber);
     stream << CURLY_BRACKET_START << NEW_LINE;
-    serializeItems(stream, dObject);
+    serializeItems(stream, dObject, tabNumber + 1);
     for (auto it = dObject.objects.begin(); it != dObject.objects.end();) {
-        serializeObject(stream, it->second);
+        serializeObject(stream, it->second, tabNumber + 1);
         if (++it != dObject.objects.end() || !dObject.vectorOfItems.empty() || !dObject.vectorOfObjects.empty())
             stream << COMMA << NEW_LINE;
     }
     for (auto it = dObject.vectorOfItems.begin(); it != dObject.vectorOfItems.end();) {
-        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START << NEW_LINE;
-        serializeVector(stream, it->second);
-        stream << NEW_LINE << SQUARE_BRACKET_END;
+        addTabs(stream, tabNumber + 1);
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SPACE << SQUARE_BRACKET_START << NEW_LINE;
+        serializeVector(stream, it->second, tabNumber + 2);
+        stream << NEW_LINE;
+        addTabs(stream, tabNumber + 1);
+        stream << SQUARE_BRACKET_END;
         if (++it != dObject.vectorOfItems.end() || !dObject.vectorOfObjects.empty())
             stream << COMMA << NEW_LINE;
     }
     for (auto it = dObject.vectorOfObjects.begin(); it != dObject.vectorOfObjects.end();) {
-        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START << NEW_LINE;
-        serializeVector(stream, it->second);
-        stream << NEW_LINE << SQUARE_BRACKET_END;
-        if (++it != dObject.vectorOfObjects.end()) continue;
-        stream << COMMA << NEW_LINE;
+        addTabs(stream, tabNumber + 1);
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SPACE << SQUARE_BRACKET_START << NEW_LINE;
+        serializeVector(stream, it->second, tabNumber + 2);
+        stream << NEW_LINE;
+        addTabs(stream, tabNumber + 1);
+        stream << SQUARE_BRACKET_END;
+        if (++it != dObject.vectorOfObjects.end())
+            stream << COMMA << NEW_LINE;
     }
-    stream << NEW_LINE << CURLY_BRACKET_END;
+    stream << NEW_LINE;
+    addTabs(stream, tabNumber);
+    stream << CURLY_BRACKET_END;
 }
 
-void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer::DVarVector &vector) {
-    for(auto it = vector.begin(); it != vector.end();){
-        switch(it->GetType()){
+void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer::DVarVector &vector, int tabNumber) {
+    for (auto it = vector.begin(); it != vector.end();) {
+        addTabs(stream, tabNumber);
+        switch (it->GetType()) {
             case DVariant::Type::String:
                 stream << QUOTATION_MARKS << it->AsString() << QUOTATION_MARKS;
                 break;
@@ -236,15 +261,15 @@ void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer:
                 stream << it->AsDouble();
                 break;
         }
-        if(++it != vector.end())
+        if (++it != vector.end())
             stream << COMMA << NEW_LINE;
     }
 }
 
-void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer::DObjVector &vector) {
-    for(auto it = vector.begin(); it != vector.end();){
-        serializeObjectOfVector(stream, *it);
-        if(++it != vector.end())
+void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer::DObjVector &vector, int tabNumber) {
+    for (auto it = vector.begin(); it != vector.end();) {
+        serializeObjectOfVector(stream, *it, tabNumber);
+        if (++it != vector.end())
             stream << COMMA << NEW_LINE;
     }
 }

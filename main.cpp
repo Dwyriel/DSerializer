@@ -47,6 +47,18 @@ int main() {
     obj.GetVectorOfObjects("Veccy4").at(0).SetObject(DSerializer::DObject("Objectus"));
     obj.GetVectorOfObjects("Veccy4").at(0).GetObject("Objectus").SetItem("Doublely_So", 2);
     obj.GetVectorOfObjects("Veccy4").at(0).GetObject("Objectus").GetObject("Objectify").SetItem("Str", "I like cute things :)");
+    obj.GetVectorOfObjects("Veccy4").emplace_back("Itenusis");
+    obj.GetVectorOfObjects("Veccy4").at(1).SetItem("MyFeelings", "I just wanna die :)");
+    {
+        std::vector<DVariant> dVarVector{76, "one", 2, false, 25, .9997, "Haru"};
+        obj.GetVectorOfObjects("Veccy4").at(0).SetVector("ArrayItems", dVarVector);
+    }{
+        DSerializer::DObjVector dObjvector{DSerializer::DObject(), DSerializer::DObject(), DSerializer::DObject()};
+        dObjvector.at(0).SetItem("One_Item", 1);
+        dObjvector.at(1).SetItem("To_Rule", 2);
+        dObjvector.at(2).SetItem("Them_All", 3);
+        obj.GetVectorOfObjects("Veccy4").at(0).SetVector("ArrayObjs", dObjvector);
+    }
     for (int i = 0; i < 10; i++) {//THIS IS DUMB, TOO MANY ALLOCATIONS FOR NO REASON, I KNOW, IT'S JUST FOR TESTING
         DSerializer::DObjVector dObjvector{DSerializer::DObject(), DSerializer::DObject(), DSerializer::DObject()};
         dObjvector.at(0).SetItem("One_Item", 1);
