@@ -3,7 +3,7 @@
 #include <utility>
 #include <fstream>
 
-const char CURLY_BRACKET_START = '{', CURLY_BRACKET_END = '}', SQUARE_BRACKET_START = '[', SQUARE_BRACKET_END = ']', QUOTATION_MARKS = '\"', COLON = ':', SEMICOLON = ';', EQUAL = '=', COMMA = ',', NEW_LINE = '\n', TAB = '\t', SPACE = ' ', TRUE_STARTING_CHAR = 't', FALSE_STARTING_CHAR = 'f';
+const char CURLY_BRACKET_START = '{', CURLY_BRACKET_END = '}', SQUARE_BRACKET_START = '[', SQUARE_BRACKET_END = ']', QUOTATION_MARKS = '\"', COLON = ':', SEMICOLON = ';', EQUAL = '=', COMMA = ',', INVERSE_SLASH = '\\', NEW_LINE = '\n', TAB = '\t', SPACE = ' ', TRUE_STARTING_CHAR = 't', FALSE_STARTING_CHAR = 'f';
 const char possibleEntityStartChar[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', 't', 'f', CURLY_BRACKET_START, SQUARE_BRACKET_START, QUOTATION_MARKS};
 const char possibleNumberStartChar[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'};
 
@@ -272,23 +272,25 @@ void DSerializer::DDocument::putFileContentsIntoString(std::string &string) {
 
 void DSerializer::DDocument::removeNewLinesTabsAndSpaces(std::string &string) {
     bool shouldContinue = false;
-    for(size_t index = 0; index < string.size() - 1; index++){
-        char c = string[index];
-        if(c == QUOTATION_MARKS) {
+    char currChar = 0, prevChar = 0;
+    for (size_t index = 0; index < string.size() - 1; index++) {
+        prevChar = currChar;
+        currChar = string[index];
+        if (currChar == QUOTATION_MARKS && prevChar != INVERSE_SLASH) {
             shouldContinue = !shouldContinue;
             continue;
         }
-        if(shouldContinue)
+        if (shouldContinue)
             continue;
-        if(c == NEW_LINE) {
+        if (currChar == NEW_LINE) {
             string.erase(index--, 1);
             continue;
         }
-        if(c == SPACE) {
+        if (currChar == SPACE) {
             string.erase(index--, 1);
             continue;
         }
-        if(c == TAB) {
+        if (currChar == TAB) {
             string.erase(index--, 1);
             continue;
         }
@@ -297,9 +299,14 @@ void DSerializer::DDocument::removeNewLinesTabsAndSpaces(std::string &string) {
 }
 
 void DSerializer::DDocument::readEntityName(std::string &string, std::string &outputName, size_t &currIndex) {
-    throwParseErrorIf(string.find('"', currIndex+1) == std::string::npos);
-    while (string[++currIndex] != QUOTATION_MARKS) {
-        throwParseErrorIf(string[currIndex] == EOF);
+    throwParseErrorIf(string.find('"', currIndex + 1) == std::string::npos);
+    char currChar = 0, prevChar;
+    while (true) {
+        prevChar = currChar;
+        currChar = string[++currIndex];
+        throwParseErrorIf(currChar == EOF);
+        if (currChar == QUOTATION_MARKS && prevChar != INVERSE_SLASH)
+            break;
         outputName += string[currIndex];
     }
 }
