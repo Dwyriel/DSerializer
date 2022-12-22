@@ -59,15 +59,19 @@ namespace DSerializer {
 
         void checkObject(const DObject &dObject);
 
-        void serializeItems(std::ofstream &stream, DObject &dObject);
+        void addTabs(std::ofstream &stream, int tabNumber);
 
-        void serializeObject(std::ofstream &stream, DObject &dObject);
+        void serializeItems(std::ofstream &stream, DObject &dObject, int tabNumber);
 
-        void serializeObjectOfVector(std::ofstream &stream, DObject dObject);
+        void serializeObject(std::ofstream &stream, DObject &dObject, int tabNumber);
 
-        void serializeVector(std::ofstream &stream, DVarVector &vector);
+        void serializeObjectWithoutName(std::ofstream &stream, DObject dObject, int tabNumber);
 
-        void serializeVector(std::ofstream &stream, DObjVector &vector);
+        void serializeObjectCommonAttributes(std::ofstream &stream, DObject dObject, int tabNumber);
+
+        void serializeVector(std::ofstream &stream, DVarVector &vector, int tabNumber);
+
+        void serializeVector(std::ofstream &stream, DObjVector &vector, int tabNumber);
 
     public:
         DDocument() noexcept;
