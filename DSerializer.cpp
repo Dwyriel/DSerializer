@@ -118,9 +118,9 @@ bool DSerializer::DDocument::Save() {
     checkFile();
     checkObject(_mainObj);
     std::ofstream outStream(_file, std::ios::trunc);
-    outStream << CURLY_BRACKET_START;
+    outStream << CURLY_BRACKET_START << NEW_LINE;
     serializeObject(outStream, _mainObj);
-    outStream << CURLY_BRACKET_END;
+    outStream << NEW_LINE << CURLY_BRACKET_END;
     return true;
 }
 
@@ -164,60 +164,60 @@ void DSerializer::DDocument::serializeItems(std::ofstream &stream, DObject& dObj
                 break;
         }
         if (++it != dObject.items.end() || !dObject.objects.empty() || !dObject.vectorOfItems.empty() || !dObject.vectorOfObjects.empty())
-            stream << COMMA;
+            stream << COMMA << NEW_LINE;
     }
 }
 
 void DSerializer::DDocument::serializeObject(std::ofstream &stream, DSerializer::DObject &dObject) {
     if (dObject.GetObjectName().empty())
         throw std::invalid_argument("DObject needs to have a name");
-    stream << QUOTATION_MARKS << dObject.objectName << QUOTATION_MARKS << COLON << CURLY_BRACKET_START;
+    stream << QUOTATION_MARKS << dObject.objectName << QUOTATION_MARKS << COLON << CURLY_BRACKET_START << NEW_LINE;
     serializeItems(stream, dObject);
     for (auto it = dObject.objects.begin(); it != dObject.objects.end();) {
         serializeObject(stream, it->second);
         if (++it != dObject.objects.end() || !dObject.vectorOfItems.empty() || !dObject.vectorOfObjects.empty())
-            stream << COMMA;
+            stream << COMMA << NEW_LINE;
     }
     for (auto it = dObject.vectorOfItems.begin(); it != dObject.vectorOfItems.end();) {
-        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START;
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START << NEW_LINE;
         serializeVector(stream, it->second);
-        stream << SQUARE_BRACKET_END;
+        stream << NEW_LINE << SQUARE_BRACKET_END;
         if (++it != dObject.vectorOfItems.end() || !dObject.vectorOfObjects.empty())
-            stream << COMMA;
+            stream << COMMA << NEW_LINE;
     }
     for (auto it = dObject.vectorOfObjects.begin(); it != dObject.vectorOfObjects.end();) {
-        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START;
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START << NEW_LINE;
         serializeVector(stream, it->second);
-        stream << SQUARE_BRACKET_END;
+        stream << NEW_LINE << SQUARE_BRACKET_END;
         if (++it != dObject.vectorOfObjects.end())
-            stream << COMMA;
+            stream << COMMA << NEW_LINE;
     }
-    stream << CURLY_BRACKET_END;
+    stream << NEW_LINE << CURLY_BRACKET_END;
 }
 
 void DSerializer::DDocument::serializeObjectOfVector(std::ofstream &stream, DSerializer::DObject dObject) {
-    stream << CURLY_BRACKET_START;
+    stream << CURLY_BRACKET_START << NEW_LINE;
     serializeItems(stream, dObject);
     for (auto it = dObject.objects.begin(); it != dObject.objects.end();) {
         serializeObject(stream, it->second);
         if (++it != dObject.objects.end() || !dObject.vectorOfItems.empty() || !dObject.vectorOfObjects.empty())
-            stream << COMMA;
+            stream << COMMA << NEW_LINE;
     }
     for (auto it = dObject.vectorOfItems.begin(); it != dObject.vectorOfItems.end();) {
-        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START;
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START << NEW_LINE;
         serializeVector(stream, it->second);
-        stream << SQUARE_BRACKET_END;
+        stream << NEW_LINE << SQUARE_BRACKET_END;
         if (++it != dObject.vectorOfItems.end() || !dObject.vectorOfObjects.empty())
-            stream << COMMA;
+            stream << COMMA << NEW_LINE;
     }
     for (auto it = dObject.vectorOfObjects.begin(); it != dObject.vectorOfObjects.end();) {
-        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START;
+        stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SQUARE_BRACKET_START << NEW_LINE;
         serializeVector(stream, it->second);
-        stream << SQUARE_BRACKET_END;
+        stream << NEW_LINE << SQUARE_BRACKET_END;
         if (++it != dObject.vectorOfObjects.end()) continue;
-        stream << COMMA;
+        stream << COMMA << NEW_LINE;
     }
-    stream << CURLY_BRACKET_END;
+    stream << NEW_LINE << CURLY_BRACKET_END;
 }
 
 void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer::DVarVector &vector) {
@@ -237,7 +237,7 @@ void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer:
                 break;
         }
         if(++it != vector.end())
-            stream << COMMA;
+            stream << COMMA << NEW_LINE;
     }
 }
 
@@ -245,6 +245,6 @@ void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer:
     for(auto it = vector.begin(); it != vector.end();){
         serializeObjectOfVector(stream, *it);
         if(++it != vector.end())
-            stream << COMMA;
+            stream << COMMA << NEW_LINE;
     }
 }
