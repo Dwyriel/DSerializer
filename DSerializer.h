@@ -73,6 +73,18 @@ namespace DSerializer {
 
         void serializeVector(std::ofstream &stream, DObjVector &vector, int tabNumber);
 
+        inline void throwParseErrorIf(bool condition);
+
+        void putFileContentsIntoString(std::string &string);
+
+        void removeSpacesAndNewLines(std::string &string);
+
+        void removeNewLines(std::string &string);
+
+        void removeTabs(std::string &string);
+
+        void removeSpaces(std::string &string);
+
     public:
         DDocument() noexcept;
 

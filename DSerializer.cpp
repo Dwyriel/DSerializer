@@ -250,3 +250,44 @@ void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer:
             stream << COMMA << NEW_LINE;
     }
 }
+
+void DSerializer::DDocument::throwParseErrorIf(bool condition) {
+    if (condition)
+        throw std::runtime_error("Error parsing file: " + _file.string());
+}
+
+void DSerializer::DDocument::putFileContentsIntoString(std::string &string) {
+    if (!std::filesystem::exists(_file))
+        throw std::runtime_error("File " + _file.string() + " does not exist");
+    auto fileSize = std::filesystem::file_size(_file);
+    std::ifstream inputStream(_file);
+    if (!inputStream.is_open())
+        throw std::runtime_error("Couldn't open file: " + _file.string());
+    string.reserve(fileSize);
+    while (!inputStream.eof())
+        string += (char) inputStream.get();
+}
+
+void DSerializer::DDocument::removeSpacesAndNewLines(std::string &string) {
+    removeNewLines(string);
+    removeTabs(string);
+    removeSpaces(string);
+}
+
+void DSerializer::DDocument::removeNewLines(std::string &string) {
+    auto firstOf = std::string::npos;
+    while ((firstOf = string.find_first_of(NEW_LINE)) != std::string::npos)
+        string.erase(firstOf, 1);
+}
+
+void DSerializer::DDocument::removeTabs(std::string &string) {
+    auto firstOf = std::string::npos;
+    while ((firstOf = string.find_first_of(TAB)) != std::string::npos)
+        string.erase(firstOf, 1);
+}
+
+void DSerializer::DDocument::removeSpaces(std::string &string) {
+    auto firstOf = std::string::npos;
+    while ((firstOf = string.find_first_of(SPACE)) != std::string::npos)
+        string.erase(firstOf, 1);
+}
