@@ -3,7 +3,9 @@
 #include <utility>
 #include <fstream>
 
-const char CURLY_BRACKET_START = '{', CURLY_BRACKET_END = '}', SQUARE_BRACKET_START = '[', SQUARE_BRACKET_END = ']', QUOTATION_MARKS = '\"', COLON = ':', SEMICOLON = ';', EQUAL = '=', COMMA = ',', NEW_LINE = '\n', TAB = '\t', SPACE = ' ';
+const char CURLY_BRACKET_START = '{', CURLY_BRACKET_END = '}', SQUARE_BRACKET_START = '[', SQUARE_BRACKET_END = ']', QUOTATION_MARKS = '\"', COLON = ':', SEMICOLON = ';', EQUAL = '=', COMMA = ',', NEW_LINE = '\n', TAB = '\t', SPACE = ' ', TRUE_STARTING_CHAR = 't', FALSE_STARTING_CHAR = 'f';
+const char possibleEntityStartChar[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', 't', 'f', CURLY_BRACKET_START, SQUARE_BRACKET_START, QUOTATION_MARKS};
+const char possibleNumberStartChar[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'};
 
 //<!-- DObject --!>
 
@@ -268,27 +270,51 @@ void DSerializer::DDocument::putFileContentsIntoString(std::string &string) {
         string += (char) inputStream.get();
 }
 
-void DSerializer::DDocument::removeSpacesAndNewLines(std::string &string) {
-    removeNewLines(string);
-    removeTabs(string);
-    removeSpaces(string);
+void DSerializer::DDocument::removeNewLinesTabsAndSpaces(std::string &string) {
+    bool shouldContinue = false;
+    for(size_t index = 0; index < string.size() - 1; index++){
+        char c = string[index];
+        if(c == QUOTATION_MARKS) {
+            shouldContinue = !shouldContinue;
+            continue;
+        }
+        if(shouldContinue)
+            continue;
+        if(c == NEW_LINE) {
+            string.erase(index--, 1);
+            continue;
+        }
+        if(c == SPACE) {
+            string.erase(index--, 1);
+            continue;
+        }
+        if(c == TAB) {
+            string.erase(index--, 1);
+            continue;
+        }
+    }
     string.shrink_to_fit();
 }
 
-void DSerializer::DDocument::removeNewLines(std::string &string) {
-    auto firstOf = std::string::npos;
-    while ((firstOf = string.find_first_of(NEW_LINE)) != std::string::npos)
-        string.erase(firstOf, 1);
+void DSerializer::DDocument::readEntityName(std::string &string, std::string &outputName, size_t &currIndex) {
+    throwParseErrorIf(string.find('"', currIndex+1) == std::string::npos);
+    while (string[++currIndex] != QUOTATION_MARKS) {
+        throwParseErrorIf(string[currIndex] == EOF);
+        outputName += string[currIndex];
+    }
 }
 
-void DSerializer::DDocument::removeTabs(std::string &string) {
-    auto firstOf = std::string::npos;
-    while ((firstOf = string.find_first_of(TAB)) != std::string::npos)
-        string.erase(firstOf, 1);
-}
-
-void DSerializer::DDocument::removeSpaces(std::string &string) {
-    auto firstOf = std::string::npos;
-    while ((firstOf = string.find_first_of(SPACE)) != std::string::npos)
-        string.erase(firstOf, 1);
+DSerializer::DDocument::TypeOfEntity DSerializer::DDocument::checkTypeOfEntity(char character) {
+    if (character == CURLY_BRACKET_START)
+        return TypeOfEntity::Object;
+    if (character == SQUARE_BRACKET_START)
+        return TypeOfEntity::Vector;
+    if (character == QUOTATION_MARKS)
+        return TypeOfEntity::String;
+    if (character == TRUE_STARTING_CHAR || character == FALSE_STARTING_CHAR)
+        return TypeOfEntity::Boolean;
+    for (auto c: possibleNumberStartChar)
+        if (character == c)
+            return TypeOfEntity::Number;
+    return TypeOfEntity::None;
 }

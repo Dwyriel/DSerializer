@@ -52,6 +52,14 @@ namespace DSerializer {
     using DVarVector = std::vector<DVariant>;
 
     class DDocument {
+        enum class TypeOfEntity : char {
+            String, Number, Boolean, Object, Vector, None
+        };
+
+        enum class TypeOfVector : char {
+            Item, Object, None
+        };
+
         DObject _mainObj;
         std::filesystem::path _file;
 
@@ -77,13 +85,16 @@ namespace DSerializer {
 
         void putFileContentsIntoString(std::string &string);
 
-        void removeSpacesAndNewLines(std::string &string);
+        void removeNewLinesTabsAndSpaces(std::string &string);
 
-        void removeNewLines(std::string &string);
+        /**
+         * @param string the string containing the name
+         * @param outputName the string that will receive the name
+         * @param currIndex The index of the first quotation mark(")
+         */
+        void readEntityName(std::string &string, std::string &outputName, size_t &currIndex);
 
-        void removeTabs(std::string &string);
-
-        void removeSpaces(std::string &string);
+        TypeOfEntity checkTypeOfEntity(char character);
 
     public:
         DDocument() noexcept;
