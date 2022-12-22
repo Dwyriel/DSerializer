@@ -65,9 +65,9 @@ namespace DSerializer {
 
         void serializeObject(std::ofstream &stream, DObject &dObject, int tabNumber);
 
-        void serializeObjectWithoutName(std::ofstream &stream, DObject dObject, int tabNumber);
+        void serializeObjectWithoutName(std::ofstream &stream, DObject &dObject, int tabNumber);
 
-        void serializeObjectCommonAttributes(std::ofstream &stream, DObject dObject, int tabNumber);
+        void serializeObjectCommonAttributes(std::ofstream &stream, DObject &dObject, int tabNumber);
 
         void serializeVector(std::ofstream &stream, DVarVector &vector, int tabNumber);
 

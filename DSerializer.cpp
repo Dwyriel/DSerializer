@@ -118,8 +118,8 @@ void DSerializer::DDocument::Save() {
     checkFile();
     checkObject(_mainObj);
     std::ofstream outputStream(_file, std::ios::trunc);
-    if(!outputStream.is_open())
-        throw std::runtime_error("Couldn't open file: "  + _file.string());
+    if (!outputStream.is_open())
+        throw std::runtime_error("Couldn't open file: " + _file.string());
     serializeObjectWithoutName(outputStream, _mainObj, 0);
 }
 
@@ -184,7 +184,7 @@ void DSerializer::DDocument::serializeObject(std::ofstream &stream, DSerializer:
     stream << CURLY_BRACKET_END;
 }
 
-void DSerializer::DDocument::serializeObjectWithoutName(std::ofstream &stream, DSerializer::DObject dObject, int tabNumber) {
+void DSerializer::DDocument::serializeObjectWithoutName(std::ofstream &stream, DSerializer::DObject &dObject, int tabNumber) {
     addTabs(stream, tabNumber);
     stream << CURLY_BRACKET_START << NEW_LINE;
     serializeObjectCommonAttributes(stream, dObject, tabNumber + 1);
@@ -193,7 +193,7 @@ void DSerializer::DDocument::serializeObjectWithoutName(std::ofstream &stream, D
     stream << CURLY_BRACKET_END;
 }
 
-void DSerializer::DDocument::serializeObjectCommonAttributes(std::ofstream &stream, DSerializer::DObject dObject, int tabNumber) {
+void DSerializer::DDocument::serializeObjectCommonAttributes(std::ofstream &stream, DSerializer::DObject &dObject, int tabNumber) {
     serializeItems(stream, dObject, tabNumber);
     for (auto it = dObject.objects.begin(); it != dObject.objects.end();) {
         serializeObject(stream, it->second, tabNumber);
