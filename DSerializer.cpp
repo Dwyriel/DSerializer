@@ -251,8 +251,6 @@ void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer:
     }
 }
 
-#include <iostream>
-
 DSerializer::DObject &DSerializer::DDocument::Load() {
     checkFile();
     std::string fileContents;
@@ -263,8 +261,6 @@ DSerializer::DObject &DSerializer::DDocument::Load() {
     if (fileContents[currIndex] == CURLY_BRACKET_END)
         return (_mainObj = DObject());
     readObject(fileContents, _mainObj, currIndex);
-
-    std::cout << fileContents << std::endl;
     return _mainObj;
 }
 
@@ -475,11 +471,9 @@ void DSerializer::DDocument::readObjectsOfVector(std::string &string, DSerialize
     do {
         if (string[index] == COMMA) index++;
         auto c = string[index];
-        throwParseErrorIf(string[index++] != CURLY_BRACKET_START);
+        throwParseErrorIf(string[index] != CURLY_BRACKET_START);
         DObject dObj;
-        readObject(string, dObj, index);
+        readObject(string, dObj, ++index);
         dObject.GetVectorOfObjects(itemName).emplace_back(std::move(dObj));
     } while (string[index++] != SQUARE_BRACKET_END);
 }
-
-
