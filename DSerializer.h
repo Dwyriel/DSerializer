@@ -94,7 +94,21 @@ namespace DSerializer {
          */
         void readEntireString(std::string &string, std::string &outputString, size_t &index);
 
+        void readUntilChar(std::string &string, std::string &outputString, size_t &index, const std::vector<char> &characters);
+
         TypeOfEntity checkTypeOfEntity(char character);
+
+        TypeOfVector checkTypeOfVector(char character);
+
+        void readObject(std::string &string, DObject &dObject, size_t &index);
+
+        void readString(std::string &string, DObject &dObject, std::string &itemName, size_t &index);
+
+        void readNumber(std::string &string, DObject &dObject, std::string &itemName, size_t &index);
+
+        void readBoolean(std::string &string, DObject &dObject, std::string &itemName, size_t &index);
+
+        void readVector(std::string &string, DObject &dObject, std::string &itemName, size_t &index);
 
     public:
         DDocument() noexcept;

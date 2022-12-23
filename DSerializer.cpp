@@ -2,10 +2,13 @@
 #include <stdexcept>
 #include <utility>
 #include <fstream>
+#include <limits>
 
-const char CURLY_BRACKET_START = '{', CURLY_BRACKET_END = '}', SQUARE_BRACKET_START = '[', SQUARE_BRACKET_END = ']', QUOTATION_MARKS = '\"', COLON = ':', SEMICOLON = ';', EQUAL = '=', COMMA = ',', INVERSE_SLASH = '\\', NEW_LINE = '\n', TAB = '\t', SPACE = ' ', TRUE_STARTING_CHAR = 't', FALSE_STARTING_CHAR = 'f';
-const char possibleEntityStartChar[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', 't', 'f', CURLY_BRACKET_START, SQUARE_BRACKET_START, QUOTATION_MARKS};
+const char CURLY_BRACKET_START = '{', CURLY_BRACKET_END = '}', SQUARE_BRACKET_START = '[', SQUARE_BRACKET_END = ']', QUOTATION_MARKS = '\"', COLON = ':', SEMICOLON = ';', EQUAL = '=', DOT = '.', COMMA = ',', INVERSE_SLASH = '\\', NEW_LINE = '\n', TAB = '\t', SPACE = ' ', TRUE_STARTING_CHAR = 't', FALSE_STARTING_CHAR = 'f';
+const char possibleItemStartChar[] = {TRUE_STARTING_CHAR, FALSE_STARTING_CHAR, QUOTATION_MARKS, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'};
 const char possibleNumberStartChar[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'};
+const auto TRUE_STRING = "true", FALSE_STRING = "false";
+const std::vector<char> entityEndChars = {COMMA, CURLY_BRACKET_END, SQUARE_BRACKET_START};
 
 //<!-- DObject --!>
 
@@ -259,28 +262,7 @@ DSerializer::DObject &DSerializer::DDocument::Load() {
     throwParseErrorIf(fileContents[currIndex++] != CURLY_BRACKET_START);
     if (fileContents[currIndex] == CURLY_BRACKET_END)
         return (_mainObj = DObject());
-    std::string currItemName;//move below to function?
-    if (fileContents[currIndex] == QUOTATION_MARKS)
-        readEntireString(fileContents, currItemName, currIndex);
-    throwParseErrorIf(fileContents[++currIndex] != COLON);
-    TypeOfEntity type = checkTypeOfEntity(fileContents[++currIndex]);
-
-    std::string content;
-    switch (type) {
-        case TypeOfEntity::String:
-            readEntireString(fileContents, content, currIndex);
-            break;
-        case TypeOfEntity::Number:
-            break;
-        case TypeOfEntity::Boolean:
-            break;
-        case TypeOfEntity::Object:
-            break;
-        case TypeOfEntity::Vector:
-            break;
-        case TypeOfEntity::None:
-            break;
-    }
+    readObject(fileContents, _mainObj, currIndex);
 
     std::cout << fileContents << std::endl;
     return _mainObj;
@@ -340,8 +322,27 @@ void DSerializer::DDocument::readEntireString(std::string &string, std::string &
         throwParseErrorIf(currChar == EOF);
         if (currChar == QUOTATION_MARKS && prevChar != INVERSE_SLASH)
             break;
-        outputString += string[index];
+        outputString += currChar;
     }
+    index++;
+}
+
+void DSerializer::DDocument::readUntilChar(std::string &string, std::string &outputString, size_t &index, const std::vector<char> &characters) {
+    size_t smallestPosOfChar = std::numeric_limits<long long>::max();
+    char character = 0;
+    for (auto c: characters) {
+        size_t posOfChar = string.find(c, index);
+        if (posOfChar == std::string::npos)
+            continue;
+        if (posOfChar < smallestPosOfChar) {
+            smallestPosOfChar = posOfChar;
+            character = c;
+        }
+    }
+    throwParseErrorIf(smallestPosOfChar == std::numeric_limits<long long>::max());
+    outputString.reserve((smallestPosOfChar - index) + 1);
+    while (string[index] != character)
+        outputString += string[index++];
 }
 
 DSerializer::DDocument::TypeOfEntity DSerializer::DDocument::checkTypeOfEntity(char character) {
@@ -358,3 +359,73 @@ DSerializer::DDocument::TypeOfEntity DSerializer::DDocument::checkTypeOfEntity(c
             return TypeOfEntity::Number;
     return TypeOfEntity::None;
 }
+
+DSerializer::DDocument::TypeOfVector DSerializer::DDocument::checkTypeOfVector(char character) {
+    if (character == CURLY_BRACKET_START)
+        return TypeOfVector::Object;
+    for (auto c: possibleItemStartChar)
+        if (character == c)
+            return TypeOfVector::Item;
+    return TypeOfVector::None;
+}
+
+void DSerializer::DDocument::readObject(std::string &string, DSerializer::DObject &dObject, size_t &index) {
+    if (string[index] == CURLY_BRACKET_END) {
+        index++;
+        return;
+    }
+    do {
+        if (string[index] == COMMA) index++;
+        std::string currItemName;
+        throwParseErrorIf(string[index] != QUOTATION_MARKS);
+        readEntireString(string, currItemName, index);
+        throwParseErrorIf(string[index] != COLON);
+        TypeOfEntity type = checkTypeOfEntity(string[++index]);
+        switch (type) {
+            case TypeOfEntity::String:
+                readString(string, dObject, currItemName, index);
+                break;
+            case TypeOfEntity::Number:
+                readNumber(string, dObject, currItemName, index);
+                break;
+            case TypeOfEntity::Boolean:
+                readBoolean(string, dObject, currItemName, index);
+                break;
+            case TypeOfEntity::Object:
+                readObject(string, dObject.GetObject(currItemName), ++index);
+                break;
+            case TypeOfEntity::Vector:
+                readVector(string, dObject, currItemName, ++index);
+                break;
+            case TypeOfEntity::None:
+                break;
+        }//delete later \/
+        auto ch = string[index];
+    } while (string[index++] != CURLY_BRACKET_END);
+}
+
+void DSerializer::DDocument::readString(std::string &string, DObject &dObject, std::string &itemName, size_t &index) {
+    std::string content;
+    readEntireString(string, content, index);
+    dObject.SetItem(itemName, content);
+}
+
+void DSerializer::DDocument::readNumber(std::string &string, DSerializer::DObject &dObject, std::string &itemName, size_t &index) {
+    std::string content;
+    readUntilChar(string, content, index, entityEndChars);
+    if (content.find(DOT) != std::string::npos) {
+        dObject.SetItem(itemName, std::stod(content));
+        return;
+    }
+    dObject.SetItem(itemName, std::stoll(content));
+}
+
+void DSerializer::DDocument::readBoolean(std::string &string, DSerializer::DObject &dObject, std::string &itemName, size_t &index) {
+    std::string content;
+    readUntilChar(string, content, index, entityEndChars);
+    throwParseErrorIf(content != TRUE_STRING && content != FALSE_STRING);
+    dObject.SetItem(itemName, content == TRUE_STRING);
+}
+
+
+
