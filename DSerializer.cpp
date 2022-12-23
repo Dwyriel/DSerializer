@@ -124,11 +124,6 @@ bool DSerializer::DDocument::Save() {
     return true;
 }
 
-DSerializer::DObject &DSerializer::DDocument::Load() {
-    checkFile();
-    return _mainObj;
-}
-
 void DSerializer::DDocument::checkFile() {
     if (_file.empty())
         throw std::invalid_argument("No file passed");
@@ -251,6 +246,44 @@ void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer:
         if (++it != vector.end())
             stream << COMMA << NEW_LINE;
     }
+}
+
+#include <iostream>
+
+DSerializer::DObject &DSerializer::DDocument::Load() {
+    checkFile();
+    std::string fileContents;
+    putFileContentsIntoString(fileContents);
+    removeNewLinesTabsAndSpaces(fileContents);
+    size_t currIndex = 0;
+    throwParseErrorIf(fileContents[currIndex++] != CURLY_BRACKET_START);
+    if (fileContents[currIndex] == CURLY_BRACKET_END)
+        return (_mainObj = DObject());
+    std::string currItemName;//move below to function?
+    if (fileContents[currIndex] == QUOTATION_MARKS)
+        readEntireString(fileContents, currItemName, currIndex);
+    throwParseErrorIf(fileContents[++currIndex] != COLON);
+    TypeOfEntity type = checkTypeOfEntity(fileContents[++currIndex]);
+
+    std::string content;
+    switch (type) {
+        case TypeOfEntity::String:
+            readEntireString(fileContents, content, currIndex);
+            break;
+        case TypeOfEntity::Number:
+            break;
+        case TypeOfEntity::Boolean:
+            break;
+        case TypeOfEntity::Object:
+            break;
+        case TypeOfEntity::Vector:
+            break;
+        case TypeOfEntity::None:
+            break;
+    }
+
+    std::cout << fileContents << std::endl;
+    return _mainObj;
 }
 
 void DSerializer::DDocument::throwParseErrorIf(bool condition) {
