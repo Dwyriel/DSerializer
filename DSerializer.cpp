@@ -90,9 +90,9 @@ void DSerializer::DObject::checkName(const std::string &name) {
 
 //<!-- DDocument --!>
 
-DSerializer::DDocument::DDocument() noexcept: _mainObj("rootObj") {};
+DSerializer::DDocument::DDocument() noexcept = default;
 
-DSerializer::DDocument::DDocument(std::filesystem::path file) noexcept: _file(std::move(file)), _mainObj("rootObj") {}
+DSerializer::DDocument::DDocument(std::filesystem::path file) noexcept: _file(std::move(file)) {}
 
 DSerializer::DDocument::DDocument(DObject dObject) noexcept: _mainObj(std::move(dObject)) {}
 
@@ -114,12 +114,13 @@ const std::filesystem::path &DSerializer::DDocument::GetFile() const noexcept {
     return _file;
 }
 
-bool DSerializer::DDocument::Save() {
+void DSerializer::DDocument::Save() {
     checkFile();
     checkObject(_mainObj);
-    std::ofstream outStream(_file, std::ios::trunc);
-    serializeObjectWithoutName(outStream, _mainObj, 0);
-    return true;
+    std::ofstream outputStream(_file, std::ios::trunc);
+    if (!outputStream.is_open())
+        throw std::runtime_error("Couldn't open file: " + _file.string());
+    serializeObjectWithoutName(outputStream, _mainObj, 0);
 }
 
 DSerializer::DObject &DSerializer::DDocument::Load() {
@@ -183,7 +184,7 @@ void DSerializer::DDocument::serializeObject(std::ofstream &stream, DSerializer:
     stream << CURLY_BRACKET_END;
 }
 
-void DSerializer::DDocument::serializeObjectWithoutName(std::ofstream &stream, DSerializer::DObject dObject, int tabNumber) {
+void DSerializer::DDocument::serializeObjectWithoutName(std::ofstream &stream, DSerializer::DObject &dObject, int tabNumber) {
     addTabs(stream, tabNumber);
     stream << CURLY_BRACKET_START << NEW_LINE;
     serializeObjectCommonAttributes(stream, dObject, tabNumber + 1);
@@ -192,27 +193,39 @@ void DSerializer::DDocument::serializeObjectWithoutName(std::ofstream &stream, D
     stream << CURLY_BRACKET_END;
 }
 
-void DSerializer::DDocument::serializeObjectCommonAttributes(std::ofstream &stream, DSerializer::DObject dObject, int tabNumber) {
+void DSerializer::DDocument::serializeObjectCommonAttributes(std::ofstream &stream, DSerializer::DObject &dObject, int tabNumber) {
     serializeItems(stream, dObject, tabNumber);
+    serializeSubObjects(stream, dObject, tabNumber);
+    serializeVectorOfItems(stream, dObject, tabNumber);
+    serializeVectorOfObjects(stream, dObject, tabNumber);
+}
+
+void DSerializer::DDocument::serializeSubObjects(std::ofstream &stream, DSerializer::DObject &dObject, int tabNumber) {
     for (auto it = dObject.objects.begin(); it != dObject.objects.end();) {
         serializeObject(stream, it->second, tabNumber);
         if (++it != dObject.objects.end() || !dObject.vectorOfItems.empty() || !dObject.vectorOfObjects.empty())
             stream << COMMA << NEW_LINE;
     }
+}
+
+void DSerializer::DDocument::serializeVectorOfItems(std::ofstream &stream, DSerializer::DObject &dObject, int tabNumber) {
     for (auto it = dObject.vectorOfItems.begin(); it != dObject.vectorOfItems.end();) {
         addTabs(stream, tabNumber);
         stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SPACE << SQUARE_BRACKET_START << NEW_LINE;
-        serializeVector(stream, it->second, tabNumber + 1);
+        serializeEntityOfVector(stream, it->second, tabNumber + 1);
         stream << NEW_LINE;
         addTabs(stream, tabNumber);
         stream << SQUARE_BRACKET_END;
         if (++it != dObject.vectorOfItems.end() || !dObject.vectorOfObjects.empty())
             stream << COMMA << NEW_LINE;
     }
+}
+
+void DSerializer::DDocument::serializeVectorOfObjects(std::ofstream &stream, DSerializer::DObject &dObject, int tabNumber) {
     for (auto it = dObject.vectorOfObjects.begin(); it != dObject.vectorOfObjects.end();) {
         addTabs(stream, tabNumber);
         stream << QUOTATION_MARKS << it->first << QUOTATION_MARKS << COLON << SPACE << SQUARE_BRACKET_START << NEW_LINE;
-        serializeVector(stream, it->second, tabNumber + 1);
+        serializeEntityOfVector(stream, it->second, tabNumber + 1);
         stream << NEW_LINE;
         addTabs(stream, tabNumber);
         stream << SQUARE_BRACKET_END;
@@ -221,7 +234,7 @@ void DSerializer::DDocument::serializeObjectCommonAttributes(std::ofstream &stre
     }
 }
 
-void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer::DVarVector &vector, int tabNumber) {
+void DSerializer::DDocument::serializeEntityOfVector(std::ofstream &stream, DSerializer::DVarVector &vector, int tabNumber) {
     for (auto it = vector.begin(); it != vector.end();) {
         addTabs(stream, tabNumber);
         switch (it->GetType()) {
@@ -243,7 +256,7 @@ void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer:
     }
 }
 
-void DSerializer::DDocument::serializeVector(std::ofstream &stream, DSerializer::DObjVector &vector, int tabNumber) {
+void DSerializer::DDocument::serializeEntityOfVector(std::ofstream &stream, DSerializer::DObjVector &vector, int tabNumber) {
     for (auto it = vector.begin(); it != vector.end();) {
         serializeObjectWithoutName(stream, *it, tabNumber);
         if (++it != vector.end())

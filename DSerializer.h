@@ -65,13 +65,19 @@ namespace DSerializer {
 
         void serializeObject(std::ofstream &stream, DObject &dObject, int tabNumber);
 
-        void serializeObjectWithoutName(std::ofstream &stream, DObject dObject, int tabNumber);
+        void serializeObjectWithoutName(std::ofstream &stream, DObject &dObject, int tabNumber);
 
-        void serializeObjectCommonAttributes(std::ofstream &stream, DObject dObject, int tabNumber);
+        void serializeObjectCommonAttributes(std::ofstream &stream, DObject &dObject, int tabNumber);
 
-        void serializeVector(std::ofstream &stream, DVarVector &vector, int tabNumber);
+        void serializeEntityOfVector(std::ofstream &stream, DVarVector &vector, int tabNumber);
 
-        void serializeVector(std::ofstream &stream, DObjVector &vector, int tabNumber);
+        void serializeEntityOfVector(std::ofstream &stream, DObjVector &vector, int tabNumber);
+
+        void serializeSubObjects(std::ofstream &stream, DObject &dObject, int tabNumber);
+
+        void serializeVectorOfItems(std::ofstream &stream, DObject &dObject, int tabNumber);
+
+        void serializeVectorOfObjects(std::ofstream &stream, DObject &dObject, int tabNumber);
 
     public:
         DDocument() noexcept;
@@ -90,7 +96,7 @@ namespace DSerializer {
 
         [[nodiscard]] const std::filesystem::path &GetFile() const noexcept;
 
-        bool Save();
+        void Save();
 
         DObject &Load();
     };
