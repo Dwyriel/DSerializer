@@ -3,6 +3,8 @@
 
 int main() {
     DSerializer::DDocument ddoc("test.json");
+    ddoc.Load();
+    ddoc.SetObject(std::move(DSerializer::DObject()));
     auto &obj = ddoc.GetObject();
     obj.SetItem("First_Item", "Hi");
     obj["Sec"] = 25000;
@@ -13,7 +15,7 @@ int main() {
     obj["stringus"] = -23.52312;
     obj["stringus"] = false;
     obj["stringus"] = "Back to string";
-    obj.SetItem("Second_Item", 25);
+    obj.SetItem("Second_Item", 10);
     obj.SetItem("Third_Item", 36.6);
     obj.SetItem("Fourth_Item", false);
     {
@@ -52,7 +54,8 @@ int main() {
     {
         std::vector<DVariant> dVarVector{76, "one", 2, false, 25, .9997, "Haru"};
         obj.GetVectorOfObjects("Veccy4").at(0).SetVector("ArrayItems", dVarVector);
-    }{
+    }
+    {
         DSerializer::DObjVector dObjvector{DSerializer::DObject(), DSerializer::DObject(), DSerializer::DObject()};
         dObjvector.at(0).SetItem("One_Item", 1);
         dObjvector.at(1).SetItem("To_Rule", 2);
