@@ -116,7 +116,7 @@ namespace DSerializer {
 
         void readVector(std::string &string, DObject &dObject, std::string &itemName, size_t &index);
 
-        void readItensOfVector(std::string &string, DObject &dObject, std::string &itemName, size_t &index);
+        void readItemsOfVector(std::string &string, DObject &dObject, std::string &itemName, size_t &index);
 
         void readObjectsOfVector(std::string &string, DObject &dObject, std::string &itemName, size_t &index);
 

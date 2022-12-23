@@ -441,7 +441,7 @@ void DSerializer::DDocument::readVector(std::string &string, DSerializer::DObjec
     TypeOfVector vecType = checkTypeOfVector(string[index]);
     switch (vecType) {
         case TypeOfVector::Item:
-            readItensOfVector(string, dObject, itemName, index);
+            readItemsOfVector(string, dObject, itemName, index);
             break;
         case TypeOfVector::Object:
             readObjectsOfVector(string, dObject, itemName, index);
@@ -451,7 +451,7 @@ void DSerializer::DDocument::readVector(std::string &string, DSerializer::DObjec
     }
 }
 
-void DSerializer::DDocument::readItensOfVector(std::string &string, DSerializer::DObject &dObject, std::string &itemName, size_t &index) {
+void DSerializer::DDocument::readItemsOfVector(std::string &string, DSerializer::DObject &dObject, std::string &itemName, size_t &index) {
     do {
         if (string[index] == COMMA) index++;
         TypeOfEntity type = checkTypeOfEntity(string[index]);
