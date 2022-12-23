@@ -4,7 +4,7 @@
 int main() {
     DSerializer::DDocument ddoc("test.json");
     ddoc.Load();
-    return 0;
+    ddoc.SetObject(std::move(DSerializer::DObject()));
     auto &obj = ddoc.GetObject();
     obj.SetItem("First_Item", "Hi");
     obj["Sec"] = 25000;
