@@ -164,7 +164,7 @@ void DSerializer::DDocument::serializeItems(std::ofstream &stream, DObject &dObj
             case DVariant::Type::Integer:
                 stream << it->second.AsInteger();
                 break;
-            case DVariant::Type::Double:
+            case DVariant::Type::FloatingPoint:
                 stream << it->second.AsDouble();
                 break;
         }
@@ -247,7 +247,7 @@ void DSerializer::DDocument::serializeEntityOfVector(std::ofstream &stream, DSer
             case DVariant::Type::Integer:
                 stream << it->AsInteger();
                 break;
-            case DVariant::Type::Double:
+            case DVariant::Type::FloatingPoint:
                 stream << it->AsDouble();
                 break;
         }
