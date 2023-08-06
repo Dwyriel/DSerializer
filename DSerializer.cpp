@@ -164,7 +164,7 @@ void DSerializer::DDocument::serializeItems(std::ofstream &stream, DObject &dObj
             case DVariant::Type::Integer:
                 stream << it->second.AsInteger();
                 break;
-            case DVariant::Type::Double:
+            case DVariant::Type::FloatingPoint:
                 stream << it->second.AsDouble();
                 break;
         }
@@ -247,7 +247,7 @@ void DSerializer::DDocument::serializeEntityOfVector(std::ofstream &stream, DSer
             case DVariant::Type::Integer:
                 stream << it->AsInteger();
                 break;
-            case DVariant::Type::Double:
+            case DVariant::Type::FloatingPoint:
                 stream << it->AsDouble();
                 break;
         }
@@ -323,7 +323,7 @@ void DSerializer::DDocument::removeNewLinesTabsAndSpaces(std::string &string) {
 }
 
 void DSerializer::DDocument::readEntireString(std::string &string, std::string &outputString, size_t &index) {
-    throwParseErrorIf(string.find('"', index + 1) == std::string::npos);
+    throwParseErrorIf(string.find(QUOTATION_MARKS, index + 1) == std::string::npos);
     char currChar = 0, prevChar;
     while (true) {
         prevChar = currChar;
