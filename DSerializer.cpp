@@ -323,7 +323,7 @@ void DSerializer::DDocument::removeNewLinesTabsAndSpaces(std::string &string) {
 }
 
 void DSerializer::DDocument::readEntireString(std::string &string, std::string &outputString, size_t &index) {
-    throwParseErrorIf(string.find('"', index + 1) == std::string::npos);
+    throwParseErrorIf(string.find(QUOTATION_MARKS, index + 1) == std::string::npos);
     char currChar = 0, prevChar;
     while (true) {
         prevChar = currChar;
