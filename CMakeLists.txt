@@ -10,7 +10,3 @@ add_library(DSerializer SHARED DSerializer.cpp)
 add_library(DVariant STATIC libs/DVariant/DVariant.cpp)
 
 target_link_libraries(DSerializer DVariant)
-
-project(DSerializerTest)
-add_executable(DSerializerTest main.cpp)
-target_link_libraries(DSerializerTest DSerializer)
