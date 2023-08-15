@@ -2,6 +2,7 @@
 #define JSONPARSER_JSONPARSER_H
 
 #include <map>
+#include <set>
 #include <vector>
 #include <filesystem>
 #include <libs/DVariant/DVariant.h>
@@ -11,7 +12,7 @@ namespace DSerializer {
         friend class DDocument;
 
         std::string objectName;
-        std::map<std::string, char> names;
+        std::set<std::string> names;
         std::map<std::string, DVariant> items;
         std::map<std::string, DObject> objects;
         std::map<std::string, std::vector<DVariant>> vectorOfItems;

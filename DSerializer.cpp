@@ -30,7 +30,7 @@ const std::string &DSerializer::DObject::GetObjectName() const noexcept {
 
 void DSerializer::DObject::SetItem(const std::string &name, DVariant item) {
     checkName(name);
-    names.insert(std::pair<std::string, char>(name, 0));
+    names.insert(name);
     items[name] = std::move(item);
 }
 
@@ -43,7 +43,7 @@ DVariant &DSerializer::DObject::GetItem(const std::string &name) {
 
 void DSerializer::DObject::SetObject(DObject dObject) {
     checkName(dObject.objectName);
-    names.insert(std::pair<std::string, char>(dObject.objectName, 0));
+    names.insert(dObject.objectName);
     objects.insert(std::pair<std::string, DObject>(dObject.objectName, std::move(dObject)));
 }
 
@@ -56,13 +56,13 @@ DSerializer::DObject &DSerializer::DObject::GetObject(const std::string &name) {
 
 void DSerializer::DObject::SetVector(const std::string &name, std::vector<DVariant> vector) {
     checkName(name);
-    names.insert(std::pair<std::string, char>(name, 0));
+    names.insert(name);
     vectorOfItems[name] = std::move(vector);
 }
 
 void DSerializer::DObject::SetVector(const std::string &name, std::vector<DObject> vector) {
     checkName(name);
-    names.insert(std::pair<std::string, char>(name, 0));
+    names.insert(name);
     vectorOfObjects[name] = std::move(vector);
 }
 
