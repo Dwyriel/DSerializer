@@ -436,8 +436,10 @@ void DSerializer::DDocument::readBoolean(std::string &string, DSerializer::DObje
 }
 
 void DSerializer::DDocument::readVector(std::string &string, DSerializer::DObject &dObject, std::string &itemName, size_t &index) {
-    if (string[index] == SQUARE_BRACKET_END)
+    if (string[index] == SQUARE_BRACKET_END) {
+        ++index;
         return;
+    }
     TypeOfVector vecType = checkTypeOfVector(string[index]);
     switch (vecType) {
         case TypeOfVector::Item:
