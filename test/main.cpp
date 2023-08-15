@@ -3,7 +3,8 @@
 
 int main() {
     DSerializer::DDocument ddoc("test.json");
-    ddoc.Load();
+    if (std::filesystem::exists(ddoc.GetFile()) && std::filesystem::is_regular_file(ddoc.GetFile()))
+        ddoc.Load();
     ddoc.SetObject(std::move(DSerializer::DObject()));
     auto &obj = ddoc.GetObject();
     obj.SetItem("First_Item", "Hi");
