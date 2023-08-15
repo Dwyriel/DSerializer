@@ -126,6 +126,7 @@ void DSerializer::DDocument::Save() {
     if (!outputStream.is_open())
         throw std::runtime_error("Couldn't open file: " + _file.string());
     serializeObjectWithoutName(outputStream, _mainObj, 0);
+    outputStream.close();
 }
 
 void DSerializer::DDocument::checkFile() {
@@ -289,9 +290,9 @@ void DSerializer::DDocument::putFileContentsIntoString(std::string &string) {
     std::ifstream inputStream(_file);
     if (!inputStream.is_open())
         throw std::runtime_error("Couldn't open file: " + _file.string());
-    string.reserve(fileSize + 1);
-    while (!inputStream.eof())
-        string += (char) inputStream.get();
+    string.resize(fileSize);
+    inputStream.read(&string[0], fileSize);
+    inputStream.close();
 }
 
 void DSerializer::DDocument::removeNewLinesTabsAndSpaces(std::string &string) {
