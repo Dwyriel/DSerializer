@@ -146,7 +146,7 @@ void DSerializer::DDocument::checkObject(const DObject &dObject) {
 }
 
 void DSerializer::DDocument::addTabs(std::ofstream &stream, int tabNumber) {
-    for (int i = 0; i < tabNumber; i++)
+    for (int i = 0; i < tabNumber; ++i)
         stream << TAB;
 }
 
@@ -270,8 +270,8 @@ DSerializer::DObject &DSerializer::DDocument::Load() {
     putFileContentsIntoString(fileContents);
     removeNewLinesTabsAndSpaces(fileContents);
     size_t currIndex = 0;
-    throwParseErrorIf(fileContents[currIndex++] != CURLY_BRACKET_START);
-    if (fileContents[currIndex] == CURLY_BRACKET_END)
+    throwParseErrorIf(fileContents[currIndex] != CURLY_BRACKET_START);
+    if (fileContents[++currIndex] == CURLY_BRACKET_END)
         return (_mainObj = DObject());
     readObject(fileContents, _mainObj, currIndex);
     return _mainObj;
@@ -297,7 +297,7 @@ void DSerializer::DDocument::putFileContentsIntoString(std::string &string) {
 void DSerializer::DDocument::removeNewLinesTabsAndSpaces(std::string &string) {
     bool shouldContinue = false;
     char currChar = 0, prevChar = 0;
-    for (size_t index = 0; index < string.size() - 1; index++) {
+    for (size_t index = 0; index < string.size() - 1; ++index) {
         prevChar = currChar;
         currChar = string[index];
         if (currChar == QUOTATION_MARKS && prevChar != INVERSE_SLASH) {
@@ -333,7 +333,7 @@ void DSerializer::DDocument::readEntireString(std::string &string, std::string &
             break;
         outputString += currChar;
     }
-    index++;
+    ++index;
 }
 
 void DSerializer::DDocument::readUntilChar(std::string &string, std::string &outputString, size_t &index, const std::vector<char> &characters) {
@@ -380,11 +380,11 @@ DSerializer::DDocument::TypeOfVector DSerializer::DDocument::checkTypeOfVector(c
 
 void DSerializer::DDocument::readObject(std::string &string, DSerializer::DObject &dObject, size_t &index) {
     if (string[index] == CURLY_BRACKET_END) {
-        index++;
+        ++index;
         return;
     }
     do {
-        if (string[index] == COMMA) index++;
+        if (string[index] == COMMA) ++index;
         std::string currItemName;
         throwParseErrorIf(string[index] != QUOTATION_MARKS);
         readEntireString(string, currItemName, index);
@@ -455,7 +455,7 @@ void DSerializer::DDocument::readVector(std::string &string, DSerializer::DObjec
 
 void DSerializer::DDocument::readItemsOfVector(std::string &string, DSerializer::DObject &dObject, std::string &itemName, size_t &index) {
     do {
-        if (string[index] == COMMA) index++;
+        if (string[index] == COMMA) ++index;
         TypeOfEntity type = checkTypeOfEntity(string[index]);
         std::string content;
         switch (type) {
@@ -484,8 +484,7 @@ void DSerializer::DDocument::readItemsOfVector(std::string &string, DSerializer:
 
 void DSerializer::DDocument::readObjectsOfVector(std::string &string, DSerializer::DObject &dObject, std::string &itemName, size_t &index) {
     do {
-        if (string[index] == COMMA) index++;
-        auto c = string[index];
+        if (string[index] == COMMA) ++index;
         throwParseErrorIf(string[index] != CURLY_BRACKET_START);
         DObject dObj;
         readObject(string, dObj, ++index);
