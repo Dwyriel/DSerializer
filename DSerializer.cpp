@@ -95,20 +95,39 @@ void DSerializer::DObject::checkName(const std::string &name) {
 
 //<!-- DDocument --!>
 
-DSerializer::DDocument::DDocument() noexcept = default;
+DSerializer::DDocument::DDocument() noexcept {
+    _mainObjPtr = new DObject();
+    _mainObjVec.emplace_back(*_mainObjPtr);
+};
 
-DSerializer::DDocument::DDocument(std::filesystem::path file) noexcept: _file(std::move(file)) {}
+DSerializer::DDocument::DDocument(std::filesystem::path file) noexcept: _file(std::move(file)) {
+    _mainObjPtr = new DObject();
+    _mainObjVec.emplace_back(*_mainObjPtr);
+}
 
-DSerializer::DDocument::DDocument(DObject dObject) noexcept: _mainObj(std::move(dObject)) {}
+DSerializer::DDocument::DDocument(DObject &dObject) noexcept {
+    _mainObjVec.emplace_back(dObject);
+}
 
-DSerializer::DDocument::DDocument(std::filesystem::path file, DObject dObject) noexcept: _file(std::move(file)), _mainObj(std::move(dObject)) {}
+DSerializer::DDocument::DDocument(std::filesystem::path file, DObject &dObject) noexcept: _file(std::move(file)) {
+    _mainObjVec.emplace_back(dObject);
+}
 
-void DSerializer::DDocument::SetObject(DObject dObject) noexcept {
-    _mainObj = std::move(dObject);
+DSerializer::DDocument::~DDocument() {
+    if (_mainObjPtr)
+        delete _mainObjPtr;
+}
+
+void DSerializer::DDocument::SetObject(DObject &dObject) noexcept {
+    if (_mainObjPtr) {
+        delete _mainObjPtr;
+        _mainObjPtr = nullptr;
+    }
+    _mainObjVec[0] = dObject;
 }
 
 DSerializer::DObject &DSerializer::DDocument::GetObject() noexcept {
-    return _mainObj;
+    return _mainObjVec[0];
 }
 
 void DSerializer::DDocument::SetFile(std::filesystem::path file) noexcept {
@@ -121,11 +140,11 @@ const std::filesystem::path &DSerializer::DDocument::GetFile() const noexcept {
 
 void DSerializer::DDocument::Save() {
     checkFile();
-    checkObject(_mainObj);
+    checkObject(_mainObjVec[0]);
     std::ofstream outputStream(_file, std::ios::trunc);
     if (!outputStream.is_open())
         throw std::runtime_error("Couldn't open file: " + _file.string());
-    serializeObjectWithoutName(outputStream, _mainObj, 0);
+    serializeObjectWithoutName(outputStream, _mainObjVec[0], 0);
     outputStream.close();
 }
 
@@ -272,10 +291,12 @@ DSerializer::DObject &DSerializer::DDocument::Load() {
     removeNewLinesTabsAndSpaces(fileContents);
     size_t currIndex = 0;
     throwParseErrorIf(fileContents[currIndex] != CURLY_BRACKET_START);
-    if (fileContents[++currIndex] == CURLY_BRACKET_END)
-        return (_mainObj = DObject());
-    readObject(fileContents, _mainObj, currIndex);
-    return _mainObj;
+    if (fileContents[++currIndex] == CURLY_BRACKET_END) {
+        Reset();
+        return _mainObjVec[0];
+    }
+    readObject(fileContents, _mainObjVec[0], currIndex);
+    return _mainObjVec[0];
 }
 
 void DSerializer::DDocument::throwParseErrorIf(bool condition) {
@@ -491,4 +512,11 @@ void DSerializer::DDocument::readObjectsOfVector(std::string &string, DSerialize
         readObject(string, dObj, ++index);
         dObject.GetVectorOfObjects(itemName).emplace_back(std::move(dObj));
     } while (string[index++] != SQUARE_BRACKET_END);
+}
+
+void DSerializer::DDocument::Reset() {
+    if (_mainObjPtr)
+        delete _mainObjPtr;
+    _mainObjPtr = new DObject();
+    _mainObjVec[0] = *_mainObjPtr;
 }

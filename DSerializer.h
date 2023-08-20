@@ -61,7 +61,8 @@ namespace DSerializer {
             Item, Object, None
         };
 
-        DObject _mainObj;
+        DObject *_mainObjPtr = nullptr;
+        std::vector<std::reference_wrapper<DObject>> _mainObjVec;
         std::filesystem::path _file;
 
         void checkFile();
@@ -126,11 +127,13 @@ namespace DSerializer {
 
         explicit DDocument(std::filesystem::path file) noexcept;
 
-        explicit DDocument(DObject dObject) noexcept;
+        explicit DDocument(DObject &dObject) noexcept;
 
-        explicit DDocument(std::filesystem::path file, DObject dObject) noexcept;
+        explicit DDocument(std::filesystem::path file, DObject &dObject) noexcept;
 
-        void SetObject(DObject dObject) noexcept;
+        ~DDocument();
+
+        void SetObject(DObject &dObject) noexcept;
 
         DObject &GetObject() noexcept;
 
@@ -141,6 +144,11 @@ namespace DSerializer {
         void Save();
 
         DObject &Load();
+
+        /**
+         * Resets the top level DObject
+         */
+        void Reset();
     };
 }
 
