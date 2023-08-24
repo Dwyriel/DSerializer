@@ -1,12 +1,22 @@
 #include <iostream>
+#include <csignal>
 #include "DSerializer.h"
 
 int main() {
-    DSerializer::DDocument ddoc("test.json");
-    if (std::filesystem::exists(ddoc.GetFile()) && std::filesystem::is_regular_file(ddoc.GetFile()))
-        ddoc.Load();
-    ddoc.SetObject(std::move(DSerializer::DObject()));
-    auto &obj = ddoc.GetObject();
+    srand((unsigned long)time(nullptr));
+    {
+        DSerializer::DDocument ddoc_set("test2.json");
+        auto obj = DSerializer::DObject();
+        ddoc_set.SetObject(obj);
+        obj.SetItem("stuff", (int)rand());
+        ddoc_set.Save();
+    }
+    DSerializer::DDocument ddoc_get("test.json");
+    if (std::filesystem::exists(ddoc_get.GetFile()) && std::filesystem::is_regular_file(ddoc_get.GetFile()))
+        ddoc_get.Load();
+    //std::raise(SIGTRAP); //auto breakpoint for debuggers
+    ddoc_get.Reset();
+    auto &obj = ddoc_get.GetObject();
     obj.SetItem("First_Item", "Hi");
     obj["Sec"] = 25000;
     obj.GetItem("Third") = false;
@@ -63,12 +73,12 @@ int main() {
         dObjvector.at(2).SetItem("Them_All", 3);
         obj.GetVectorOfObjects("Veccy4").at(0).SetVector("ArrayObjs", dObjvector);
     }
-    for (int i = 0; i < 10; i++) {//THIS IS DUMB, TOO MANY ALLOCATIONS FOR NO REASON, I KNOW, IT'S JUST FOR TESTING
+    for (int i = 0; i < 10; i++) {
         DSerializer::DObjVector dObjvector{DSerializer::DObject(), DSerializer::DObject(), DSerializer::DObject()};
         dObjvector.at(0).SetItem("One_Item", 1);
         dObjvector.at(1).SetItem("To_Rule", 2);
         dObjvector.at(2).SetItem("Them_All", 3);
         obj.SetVector("ArrayObjs" + std::to_string(i), dObjvector);
     }
-    ddoc.Save();
+    ddoc_get.Save();
 }
