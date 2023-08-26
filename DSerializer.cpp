@@ -114,8 +114,7 @@ DSerializer::DDocument::DDocument(std::filesystem::path file, DObject &dObject) 
 }
 
 DSerializer::DDocument::~DDocument() {
-    if (_mainObjPtr)
-        delete _mainObjPtr;
+    delete _mainObjPtr;
 }
 
 void DSerializer::DDocument::SetObject(DObject &dObject) noexcept {

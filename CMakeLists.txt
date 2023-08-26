@@ -7,6 +7,4 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_library(DSerializer SHARED DSerializer.cpp)
 
-add_library(DVariant STATIC libs/DVariant/DVariant.cpp)
-
 target_link_libraries(DSerializer DVariant)
